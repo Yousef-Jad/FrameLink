@@ -50,7 +50,14 @@ class Cancelled(Exception):
     pass
 
 
-def compress(source, destination, settings, progress=lambda value: None, cancelled=lambda: False):
+def compress(
+    source,
+    destination,
+    settings,
+    progress=lambda value: None,
+    cancelled=lambda: False,
+    wait_for_capture=lambda: None,
+):
     info = inspect_media(source)
     width = min(settings.width or info["width"], info["width"]) // 2 * 2
     height = max(2, round(info["height"] * width / info["width"]) // 2 * 2)
@@ -82,6 +89,7 @@ def compress(source, destination, settings, progress=lambda value: None, cancell
         with av.open(str(source)) as container:
             origin = float(container.start_time or 0) / av.time_base
             for packet in container.demux():
+                wait_for_capture()
                 if cancelled():
                     raise Cancelled("Compression cancelled; original retained")
                 for frame in packet.decode():
@@ -125,6 +133,7 @@ class CompressionQueue:
         self.cancelled = set()
         self.lock = threading.Lock()
         self.current = None
+        self.capture_active = lambda: False
         self.thread = threading.Thread(target=self._run, name="compression", daemon=False)
         self.thread.start()
 
@@ -145,6 +154,8 @@ class CompressionQueue:
 
     def _run(self):
         while not self.shutdown.wait(0.2):
+            if self.capture_active():
+                continue
             jobs = [j for j in self.library.jobs() if j["status"] == "queued"]
             if not jobs:
                 continue
@@ -167,6 +178,10 @@ class CompressionQueue:
                 with self.lock:
                     return self.shutdown.is_set() or ident in self.cancelled
 
+            def wait_for_capture():
+                while self.capture_active() and not cancelled():
+                    self.shutdown.wait(0.1)
+
             try:
                 item = self.library.get(job["recording_id"])
                 if item is None:
@@ -176,7 +191,12 @@ class CompressionQueue:
                 final = source.with_name(source.stem + f"-export-{suffix}.mp4")
                 temp = final.with_name(final.stem + ".partial.mp4")
                 info = compress(
-                    source, temp, CompressionSettings(**json.loads(job["settings"])), progress, cancelled
+                    source,
+                    temp,
+                    CompressionSettings(**json.loads(job["settings"])),
+                    progress,
+                    cancelled,
+                    wait_for_capture,
                 )
                 if cancelled():
                     raise Cancelled()

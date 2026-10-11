@@ -138,6 +138,7 @@ class Recorder:
                 with self.machine.lock:
                     paused = self.state == State.PAUSED
                     elapsed = self.clock.elapsed()
+                    timeline_origin = self.clock.started + self.clock.paused_total
                 if paused:
                     self.stop_event.wait(0.03)
                     continue
@@ -149,7 +150,7 @@ class Recorder:
                     self.metrics["skipped"] += target - pts
                     pts = target
                 now = time.monotonic()
-                sample_time = now - delay
+                sample_time = timeline_origin + pts / cfg.fps - delay
                 screen = self.sources.screen.latest(before=sample_time) or self.sources.screen.latest()
                 phone = self.sources.phone.latest(before=sample_time) or self.sources.phone.latest()
                 connected = phone is not None and now - phone.timestamp < 3
@@ -188,7 +189,9 @@ class Recorder:
                     wanted = round((pts + 1) * 48000 / cfg.fps)
                     # Keep audio continuous through dropped video frames. Pauses remove both timelines.
                     count = wanted - audio_pts
-                    start = sample_time - count / 48000
+                    # Read adjacent intervals on the source clock. Sampling relative
+                    # to each loop's wall time would duplicate or skip audio on jitter.
+                    start = timeline_origin + audio_pts / 48000 - delay
                     mixed = np.zeros((2, count), np.float32)
                     for key, enabled, gain in (
                         ("phone", cfg.phone_audio, cfg.phone_gain),

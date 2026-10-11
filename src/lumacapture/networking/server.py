@@ -40,6 +40,7 @@ class PhoneServer:
         self.bitrate = 0
         self._ready = threading.Event()
         self._stop_requested = threading.Event()
+        self._offer_lock = asyncio.Lock()
 
     @property
     def origin(self):
@@ -81,6 +82,9 @@ class PhoneServer:
             self.state = "Offline"
 
     async def _start(self):
+        # Contended asyncio locks belong to their event loop. Restarting the
+        # listener creates a new loop, so it must also create a new lock.
+        self._offer_lock = asyncio.Lock()
         self.runner = web.AppRunner(self.make_app(), access_log=None)
         await self.runner.setup()
         await web.TCPSite(
@@ -143,6 +147,10 @@ class PhoneServer:
         return web.Response(text=(WEB_ROOT / "style.css").read_text(), content_type="text/css")
 
     async def pair(self, request):
+        async with self._offer_lock:
+            return await self._pair(request)
+
+    async def _pair(self, request):
         body = await request.json()
         if not isinstance(body, dict) or not self.tokens.consume(body.get("token")):
             raise web.HTTPUnauthorized(
@@ -166,6 +174,10 @@ class PhoneServer:
             raise web.HTTPUnauthorized(text="Pairing session expired. Scan a new desktop QR code.")
 
     async def offer(self, request):
+        async with self._offer_lock:
+            return await self._offer(request)
+
+    async def _offer(self, request):
         self.authenticate(request)
         body = await request.json()
         if not isinstance(body, dict) or body.get("type") != "offer" or not isinstance(body.get("sdp"), str):
@@ -273,18 +285,23 @@ class PhoneServer:
         self.sources.audio["phone"].clear()
 
     async def _disconnect(self):
+        async with self._offer_lock:
+            await self._disconnect_locked()
+
+    async def _disconnect_locked(self):
+        self.session_secret = None
+        self.tokens.revoke()
         if self.channel and self.channel.readyState == "open":
             self.channel.send(json.dumps({"disconnect": True}))
             await asyncio.sleep(0.1)
         await self._close_peer()
-        self.session_secret = None
-        self.tokens.revoke()
         self.state = "Waiting for phone"
         self.notify("phone", self.state)
 
     async def disconnect_request(self, request):
-        self.authenticate(request)
-        await self._disconnect()
+        async with self._offer_lock:
+            self.authenticate(request)
+            await self._disconnect_locked()
         return web.json_response({"ok": True})
 
     def disconnect(self):
@@ -336,11 +353,11 @@ class PhoneServer:
             self.heartbeat.cancel()
             with contextlib.suppress(asyncio.CancelledError):
                 await self.heartbeat
-        await self._close_peer()
         for attr in ("runner", "bootstrap_runner"):
             runner = getattr(self, attr, None)
             if runner:
                 await runner.cleanup()
+        await self._close_peer()
 
     def stop(self):
         self._stop_requested.set()

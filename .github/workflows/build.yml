@@ -49,6 +49,9 @@ jobs:
         run: python tools/capture_check.py
       - name: Package and execute frozen application
         run: python tools/package.py
+      - name: Build and execute AppImage
+        if: runner.os == 'Linux'
+        run: python tools/package_appimage.py
       - uses: actions/upload-artifact@v4
         if: always()
         with:
@@ -58,6 +61,7 @@ jobs:
             artifacts/*.png
             artifacts/*.zip
             artifacts/*.tar.gz
+            artifacts/*.AppImage
             artifacts/*.sha256
             artifacts/*-result.json
           if-no-files-found: warn

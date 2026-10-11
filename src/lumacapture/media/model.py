@@ -103,8 +103,8 @@ class RecordingConfig:
     def __post_init__(self):
         if self.mode not in {"screen", "phone", "both"} or self.layout not in {"pip", "separate"}:
             raise ValueError("Unknown recording mode")
-        if self.fps not in {30, 60, 120}:
-            raise ValueError("FPS must be 30, 60 or 120")
+        if self.fps not in {15, 30, 60, 120}:
+            raise ValueError("FPS must be 15, 30, 60 or 120")
         if (
             (self.width == 0) != (self.height == 0)
             or not 0 <= self.width <= 7680

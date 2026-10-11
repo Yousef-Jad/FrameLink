@@ -145,7 +145,7 @@ def inspect_media(path, full=False):
         result = {
             "width": v.width,
             "height": v.height,
-            "codec": v.codec_context.name,
+            "codec": v.codec_context.codec.canonical_name,
             "fps": float(v.average_rate or v.base_rate or 0),
             "duration": float(container.duration or 0) / av.time_base,
             "audio": bool(container.streams.audio),

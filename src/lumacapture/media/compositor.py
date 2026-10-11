@@ -6,7 +6,10 @@ def fit(rgb, size):
     image = Image.fromarray(rgb)
     if image.size == size:
         return image
-    return ImageOps.pad(image, size, method=Image.Resampling.BILINEAR, color=(12, 15, 20))
+    image.thumbnail(size, Image.Resampling.BILINEAR)
+    canvas = Image.new("RGB", size, (12, 15, 20))
+    canvas.paste(image, ((size[0] - image.width) // 2, (size[1] - image.height) // 2))
+    return canvas
 
 
 def compose(screen, phone, size, config):

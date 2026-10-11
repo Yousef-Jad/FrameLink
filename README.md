@@ -42,7 +42,7 @@ Extract `LumaCapture-Windows-x64.zip` and launch `LumaCapture/LumaCapture.exe`. 
 
 ### Linux
 
-Extract `LumaCapture-Linux-x86_64.tar.gz`, then run `./LumaCapture/LumaCapture`. The CI package targets Ubuntu 24.04 or newer compatible systems. The host must provide its graphics drivers, X11 or Wayland libraries, audio service, PipeWire, and a suitable desktop portal. An AppImage is not yet verified. The portable package includes a desktop entry; adjust its `Exec` and `Icon` paths before installing it in `~/.local/share/applications/`.
+Extract `LumaCapture-Linux-x86_64.tar.gz`, then run `./LumaCapture/LumaCapture`. The CI package targets Ubuntu 24.04 or newer compatible systems. The host must provide its graphics drivers, X11 or Wayland libraries, audio service, PipeWire, and a suitable desktop portal. For the AppImage, make `LumaCapture-Linux-x86_64.AppImage` executable and run it. If FUSE is unavailable, use `./LumaCapture-Linux-x86_64.AppImage --appimage-extract-and-run`. It has the same host-library baseline as the portable package; see the verification report for tested builds. The portable package includes a desktop entry; adjust its `Exec` and `Icon` paths before installing it in `~/.local/share/applications/`.
 
 For Hyprland, use a working `xdg-desktop-portal-hyprland` or another ScreenCast portal appropriate for your compositor. LumaCapture does not change portal configuration or bypass permission dialogs.
 
@@ -91,7 +91,7 @@ If the selected address disappears, LumaCapture stops the server and asks you to
 
 Select a monitor on X11 or Windows, or use the Wayland portal chooser. Native output dimensions come from received capture frames, not the display's logical UI geometry. Custom output may reduce resolution; upscaling is rejected. Cursor inclusion is selectable for WGC; other backends use platform or portal policy.
 
-30 and 60 FPS can be requested. **Measure performance** exercises conversion, composition, and encoding on captured content. Auto selects a rate with measured headroom; 120 FPS is offered only after sufficient measured capacity. This is a short estimate, not a sustained-performance guarantee, and a high-refresh display alone is not proof of achievable recording FPS. Actual capture-event FPS, encoded FPS, skipped output frames, encode latency, process CPU, memory, file size, and free space are displayed. Unchanged desktop content may produce no new capture events.
+30 and 60 FPS can be requested. **Measure performance** exercises conversion, composition, and encoding on captured content. Auto runs this measurement before recording and selects 15, 30, 60, or 120 FPS with measured encoding headroom; 120 FPS is offered only after sufficient measured capacity. This is a short estimate, not a sustained-performance guarantee, and a high-refresh display alone is not proof of achievable recording FPS. Actual capture-event FPS, encoded FPS, skipped output frames, encode latency, process CPU, memory, file size, and free space are displayed. Unchanged desktop content may produce no new capture events.
 
 ### Phone Camera
 
@@ -129,7 +129,7 @@ The queue persists across restarts. In-progress jobs become Interrupted and can 
 
 Encoder discovery actually opens and encodes frames with NVENC, Quick Sync, AMF, and software H.264. A codec listed by FFmpeg alone is insufficient. Failed hardware initialization falls back to software before recording begins. Driver or runtime failures during recording preserve partial media and report an error.
 
-Capture, WebRTC, encoding, and compression run in separate execution paths with bounded receive buffers. The current compositor uses CPU RGB frames and copies; this is not a zero-copy pipeline. High-resolution/high-FPS combined capture can exceed ordinary laptop capacity. A four-second overload window reduces encoding cadence, reports the change, and preserves resolution and timing. Reduce output size or FPS when skipped frames continue to rise. GPU utilization is not measured. Do not run heavy compression alongside demanding capture if it overloads your machine.
+Capture, WebRTC, encoding, and compression run in separate execution paths with bounded receive buffers. The current compositor uses CPU RGB frames and copies; this is not a zero-copy pipeline. High-resolution/high-FPS combined capture can exceed ordinary laptop capacity. A four-second overload window reduces encoding cadence, reports the change, and preserves resolution and timing. Reduce output size or FPS when skipped frames continue to rise. The metrics tooltip reports system memory pressure and GPU utilization when NVIDIA NVML or Linux AMD sysfs provides it; unsupported drivers show unavailable. These GPU interfaces require hardware verification. Compression pauses while recording or finalizing to reduce resource contention.
 
 ## Troubleshooting
 
@@ -165,6 +165,8 @@ Build and verify a portable bundle **on each target OS**:
 python -m pytest -q
 python -m ruff check src tests tools
 python tools/package.py
+# Linux only, after the portable build:
+python tools/package_appimage.py
 ```
 
 `--smoke-test` opens the actual UI, writes and validates a one-second video, and exits. `--capture-test DIRECTORY` requests genuine desktop capture, records five seconds, validates the saved file, and exits. The latter needs a usable desktop and Wayland permission. FFprobe is used by the test suite when installed. Synthetic source tests exercise media mechanics and WebRTC transport; they do not certify physical cameras or operating systems.
@@ -196,7 +198,7 @@ The public certificate setup endpoint is separate from camera/signaling endpoint
 
 ## Known limitations
 
-See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows display capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. GPU load metrics, compositor blur integration, zero-copy composition, IPv6-only pairing, and an AppImage are not complete. No production compatibility or performance guarantee is made for these gaps.
+See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows 10/11 display and audio capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. Windows Server CI capture does not certify Windows client hardware. Zero-copy composition and IPv6-only pairing are not implemented. Windows 11 system backdrop integration uses the supported DWM API where available; Linux and unsupported Windows versions use opaque surfaces. GPU metrics depend on driver interfaces. AppImage extraction and execution are tested; FUSE mounting and clean-machine portability still require validation. No production compatibility or performance guarantee is made for these gaps.
 
 ## License and contributions
 

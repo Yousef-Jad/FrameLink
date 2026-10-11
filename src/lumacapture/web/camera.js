@@ -4,13 +4,22 @@ let token = location.hash.slice(1);
 history.replaceState(null, "", "/");
 let session = null, pc = null, stream = null, wakeLock = null;
 let stopped = true, busy = false, heartbeat = 0, retries = 0, reconnectTimer = null;
+let lifecycle = 0;
 function message(text) { $("message").textContent = text; }
 function status(text) { $("status").textContent = text; }
-async function post(path, body) {
+window.addEventListener("hashchange", () => {
+  // A QR scanner may reuse the existing browser tab without reloading the page.
+  if (location.hash && stopped) {
+    token = location.hash.slice(1);
+    history.replaceState(null, "", "/");
+    message("New pairing code received. Tap Connect camera to continue.");
+  }
+});
+async function post(path, body, credential = session) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), 20000);
   try {
-    const response = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json", "X-Luma-Session": session || ""}, body: JSON.stringify(body), signal: controller.signal, cache: "no-store", credentials: "omit"});
+    const response = await fetch(path, {method: "POST", headers: {"Content-Type": "application/json", "X-Luma-Session": credential || ""}, body: JSON.stringify(body), signal: controller.signal, cache: "no-store", credentials: "omit"});
     if (!response.ok) throw new Error(await response.text());
     return await response.json();
   } finally { clearTimeout(timeout); }
@@ -21,7 +30,13 @@ function constraints() {
 }
 async function acquireCamera() {
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) throw new Error("Camera access requires trusted HTTPS. Complete the certificate setup shown on the desktop, then reopen the pairing URL.");
-  stream = await navigator.mediaDevices.getUserMedia(constraints());
+  const epoch = lifecycle;
+  const acquired = await navigator.mediaDevices.getUserMedia(constraints());
+  if (stopped || epoch !== lifecycle) {
+    acquired.getTracks().forEach(track => track.stop());
+    throw new Error("Camera request cancelled. Scan a fresh pairing code to reconnect.");
+  }
+  stream = acquired;
   $("preview").srcObject = stream;
   await $("preview").play();
   const track = stream.getVideoTracks()[0], actual = track.getSettings();
@@ -35,6 +50,7 @@ async function acquireCamera() {
   }
 }
 async function negotiate() {
+  if (stopped || !stream) return;
   if (pc) { pc.onconnectionstatechange = null; pc.close(); }
   const peer = new RTCPeerConnection({iceServers: [], bundlePolicy: "max-bundle"});
   pc = peer;
@@ -62,6 +78,7 @@ async function negotiate() {
     const changed = () => { if (peer.iceGatheringState === "complete") { clearTimeout(timer); peer.removeEventListener("icegatheringstatechange", changed); resolve(); } };
     peer.addEventListener("icegatheringstatechange", changed); changed();
   });
+  if (stopped || peer !== pc) return;
   const answer = await post("/offer", {type: peer.localDescription.type, sdp: peer.localDescription.sdp});
   if (stopped || peer !== pc) return;
   await peer.setRemoteDescription(answer);
@@ -86,7 +103,7 @@ async function connect() {
       if (!token) throw new Error("Scan a fresh pairing QR code from the desktop.");
       session = (await post("/pair", {token})).session; token = null;
     }
-    stopped = false;
+    stopped = false; heartbeat = Date.now(); retries = 0;
     await acquireCamera();
     await negotiate();
     $("switch").disabled = false; $("disconnect").disabled = false;
@@ -95,7 +112,8 @@ async function connect() {
   finally { busy = false; $("connect").disabled = !stopped; }
 }
 async function disconnect() {
-  stopped = true; clearTimeout(reconnectTimer); reconnectTimer = null;
+  stopped = true; lifecycle++; clearTimeout(reconnectTimer); reconnectTimer = null;
+  const old = session; session = null;
   if (pc) { pc.onconnectionstatechange = null; pc.close(); pc = null; }
   if (stream) { stream.getTracks().forEach(track => track.stop()); stream = null; }
   $("preview").srcObject = null;
@@ -104,7 +122,7 @@ async function disconnect() {
   status("Disconnected"); $("connect").disabled = false;
   $("switch").disabled = true; $("disconnect").disabled = true;
   ["facing", "resolution", "fps", "audio"].forEach(id => $(id).disabled = false);
-  if (session) { const old = session; try { await post("/disconnect", {}); } catch (_) {} if (session === old) session = null; }
+  if (old) { try { await post("/disconnect", {}, old); } catch (_) {} }
 }
 $("connect").onclick = connect;
 $("disconnect").onclick = () => { disconnect(); message("Camera stopped. Scan a new QR code to pair again."); };
@@ -118,7 +136,7 @@ $("switch").onclick = async () => {
   } catch (error) { await disconnect(); message(error.message); }
   finally { busy = false; $("switch").disabled = stopped; }
 };
-window.addEventListener("pagehide", () => { stopped = true; if (stream) stream.getTracks().forEach(t => t.stop()); if (pc) pc.close(); });
+window.addEventListener("pagehide", () => { disconnect(); });
 document.addEventListener("visibilitychange", () => {
   if (document.hidden && !stopped) message("The operating system may suspend the camera while this page is hidden. Return here to continue.");
   if (!document.hidden && !stopped) {

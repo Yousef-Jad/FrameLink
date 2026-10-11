@@ -103,6 +103,25 @@ async def test_invalid_network_requests(server):
         assert response.status == 403
 
 
+async def test_waiting_disconnect_reauthenticates_after_session_changes(server):
+    from types import SimpleNamespace
+
+    srv, _, _ = server
+    srv.session_secret = "old-session"
+    srv.session_expiry = time.monotonic() + 60
+    await srv._offer_lock.acquire()
+    request = SimpleNamespace(headers={"X-Luma-Session": "old-session"})
+    disconnect = asyncio.create_task(srv.disconnect_request(request))
+    await asyncio.sleep(0)
+    srv.session_secret = "new-session"
+    token = srv.tokens.issue()
+    srv._offer_lock.release()
+    with pytest.raises(web.HTTPUnauthorized):
+        await disconnect
+    assert srv.session_secret == "new-session"
+    assert srv.tokens.consume(token)
+
+
 class FixtureCamera(VideoStreamTrack):
     """Synthetic transport fixture; this does not validate a physical phone camera."""
 
@@ -146,3 +165,26 @@ async def test_webrtc_receive_and_reconnect(server):
             await peer.close()
             await srv._close_peer()
         assert srv.sources.phone.latest() is None
+
+
+async def test_certificate_download_is_explicit_and_time_limited(tmp_path):
+    from aiohttp.test_utils import TestServer, TestClient
+
+    srv = PhoneServer(Sources(), Certificates(tmp_path / "certs"))
+    srv.address = "127.0.0.1"
+    test_server = TestServer(srv.bootstrap_app())
+    await test_server.start_server()
+    srv.port = test_server.port - 1
+    async with TestClient(test_server) as client:
+        response = await client.get("/ca.crt")
+        assert response.status == 403
+        srv.enable_bootstrap()
+        response = await client.get("/ca.crt")
+        assert response.status == 200
+        cert = x509.load_der_x509_certificate(await response.read())
+        assert cert.subject == srv.certificates.ca.subject
+        response = await client.get("/server-key.pem")
+        assert response.status == 404
+        srv.bootstrap_until = 0
+        response = await client.get("/ios.mobileconfig")
+        assert response.status == 403

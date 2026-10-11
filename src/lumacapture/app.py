@@ -98,7 +98,12 @@ def main():
                 and window.recorder.clock.elapsed() >= 5
             ):
                 window.stop_recording()
-            if started[0] and window.recorder.state in {State.IDLE, State.ERROR}:
+            if (
+                started[0]
+                and not window.benchmark_running
+                and window.recorder.clock is not None
+                and window.recorder.state in {State.IDLE, State.ERROR}
+            ):
                 test_timer.stop()
                 print(
                     json.dumps(

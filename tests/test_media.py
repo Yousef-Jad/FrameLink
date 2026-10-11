@@ -38,6 +38,19 @@ def test_compression_valid_mp4(media_file, tmp_path):
     assert result["duration"] == pytest.approx(1.5, abs=0.1)
 
 
+@pytest.mark.integration
+@pytest.mark.parametrize("encoder,codec", [("libx265", "hevc"), ("libsvtav1", "av1")])
+def test_advanced_compression_streams(media_file, tmp_path, encoder, codec):
+    import av
+
+    if encoder not in av.codecs_available:
+        pytest.skip(f"{encoder} not included in this platform's FFmpeg build")
+    result = compress(media_file, tmp_path / "advanced.mp4", CompressionSettings(codec=encoder, preset="fast"))
+    assert result["codec"] == codec and result["audio"]
+    assert result["decoded_frames"] == 45
+    assert result["duration"] == pytest.approx(1.5, abs=0.1)
+
+
 def test_compression_cancellation_retains_original(media_file, tmp_path):
     original = media_file.read_bytes()
     with pytest.raises(Cancelled):
@@ -101,8 +114,12 @@ def test_queue_and_library(media_file, tmp_path):
     library = Library(tmp_path / "library")
     ident = library.add(media_file, inspect_media(media_file))
     queue = CompressionQueue(library)
+    queue.capture_active = lambda: True
     job = queue.enqueue(ident, CompressionSettings(preset="veryfast"))
     try:
+        time.sleep(0.4)
+        assert next(j for j in library.jobs() if j["id"] == job)["status"] == "queued"
+        queue.capture_active = lambda: False
         wait_until(
             lambda: next(j for j in library.jobs() if j["id"] == job)["status"] in {"complete", "failed"}, 20
         )
@@ -242,3 +259,34 @@ for i in range(1000):
     assert recovered and not failures, failures
     assert partial.exists()
     assert validate_media(library.recordings()[0]["path"])["decoded_frames"] > 20
+
+
+def test_audio_intervals_remain_contiguous_under_encoder_jitter(tmp_path, monkeypatch):
+    from lumacapture.media.encode import MediaWriter
+
+    sources = Sources()
+    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    intervals = []
+    original_read = sources.audio["mic"].read
+    original_write = MediaWriter.write_video
+
+    def read(start, count):
+        intervals.append((start, count))
+        return original_read(start, count)
+
+    def write(writer, rgb, pts):
+        time.sleep(0.018 if pts % 2 else 0.002)
+        return original_write(writer, rgb, pts)
+
+    monkeypatch.setattr(sources.audio["mic"], "read", read)
+    monkeypatch.setattr(MediaWriter, "write_video", write)
+    recorder = Recorder(sources, Library(tmp_path / "library"), tmp_path / "recordings")
+    try:
+        recorder.start(RecordingConfig(microphone=True))
+        wait_until(lambda: recorder.metrics["encoded"] >= 12)
+    finally:
+        recorder.stop()
+        recorder.thread.join(10)
+    assert recorder.state == State.IDLE, recorder.error
+    for (start, count), (following, _) in zip(intervals, intervals[1:]):
+        assert following == pytest.approx(start + count / 48000, abs=1 / 48000, rel=0)

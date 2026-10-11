@@ -51,6 +51,8 @@ from lumacapture.networking.server import PhoneServer
 from lumacapture.recording.engine import Recorder, recover_recordings
 from lumacapture.security.certificates import Certificates
 from lumacapture.ui.theme import stylesheet
+from lumacapture.ui.platform_effects import apply_window_effects
+from lumacapture.media.performance import ResourceMonitor
 
 
 class Events(QObject):
@@ -161,6 +163,9 @@ class MainWindow(QMainWindow):
         self.output.mkdir(parents=True, exist_ok=True)
         self.compression = CompressionQueue(library, self.events.message.emit)
         self.recorder = Recorder(self.sources, library, self.output, self.events.message.emit, self.saved)
+        self.compression.capture_active = lambda: (
+            self.recorder.state in {State.RECORDING, State.PAUSED, State.STOPPING}
+        )
         self.desktop = DesktopCapture(self.sources.screen)
         self.desktop.error.connect(lambda text: self.on_message("error", f"Screen capture: {text}"))
         self.desktop.changed.connect(lambda text: self.backend_label.setText(text))
@@ -172,6 +177,7 @@ class MainWindow(QMainWindow):
         self.microphone.error.connect(lambda text: self.on_message("error", text))
         self.system_audio.error.connect(lambda text: self.on_message("error", text))
         self.server = None
+        self.server_starting = False
         self.certificates = None
         self.mode = "screen"
         self.closing = False
@@ -180,11 +186,15 @@ class MainWindow(QMainWindow):
         self.last_network_check = 0
         self.available_encoders = []
         self.measured_fps = 30
+        self.benchmark_running = False
+        self.start_after_benchmark = False
         self.last_state = None
         self.process = psutil.Process()
         self.process.cpu_percent()
+        self.resources = ResourceMonitor()
         self.build_ui()
         self.setStyleSheet(stylesheet(self.library.setting("theme", "Dark") == "Light"))
+        apply_window_effects(self, self.library.setting("theme", "Dark") == "Dark")
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.tick)
         self.timer.start(125)
@@ -552,7 +562,7 @@ class MainWindow(QMainWindow):
             setattr(self, name + "_gain", control)
             form.addRow(name.title() + " gain", control)
         note = label(
-            "System audio uses WASAPI speaker loopback on Windows or a monitor input on Linux. GPU load is not measured. Opaque surfaces are used when no supported compositor blur integration is available.",
+            "System audio uses WASAPI speaker loopback on Windows or a monitor input on Linux. GPU load is available with NVML or AMD gpu_busy_percent. Windows 11 uses the supported system backdrop; content surfaces remain opaque for consistent readability.",
             "muted",
         )
         note.setWordWrap(True)
@@ -622,9 +632,15 @@ class MainWindow(QMainWindow):
         except Exception as exc:
             self.on_message("error", str(exc))
 
-    def start_recording(self):
+    def start_recording(self, checked=False, measured=False):
         try:
             self.recorder.reset()
+            if self.fps.currentData() <= 0 and not measured:
+                if self.benchmark_running:
+                    return
+                self.start_after_benchmark = True
+                self.benchmark()
+                return
             cfg = self.config()
             self.desktop.set_rate(cfg.fps)
             if cfg.microphone:
@@ -676,6 +692,8 @@ class MainWindow(QMainWindow):
                 self.networks.setCurrentIndex(index)
 
     def toggle_server(self):
+        if self.server_starting:
+            return
         if self.server and self.server.thread and self.server.thread.is_alive():
             self.server.stop()
             self.server_btn.setEnabled(False)
@@ -685,6 +703,7 @@ class MainWindow(QMainWindow):
             self.on_message("error", "No active private IPv4 network. Join a Wi-Fi network or hotspot first.")
             return
         self.server_btn.setEnabled(False)
+        self.server_starting = True
 
         def start():
             try:
@@ -697,8 +716,11 @@ class MainWindow(QMainWindow):
                     lambda: self.recorder.state.value,
                 )
                 self.server.start(address)
+                self.server._ready.wait(20)
             except Exception as exc:
                 self.events.message.emit("error", str(exc))
+            finally:
+                self.server_starting = False
 
         threading.Thread(target=start, name="certificate-setup", daemon=True).start()
 
@@ -796,17 +818,27 @@ class MainWindow(QMainWindow):
         )
 
     def benchmark(self):
+        if self.benchmark_running or self.recorder.state != State.IDLE:
+            return
         sample = getattr(self.sources, "phone" if self.mode == "phone" else "screen").latest()
         if sample is None:
+            self.start_after_benchmark = False
             self.on_message("error", "Start a live preview before measuring performance.")
             return
+        try:
+            cfg = self.config()
+        except ValueError as exc:
+            self.start_after_benchmark = False
+            self.on_message("error", str(exc))
+            return
         self.benchmark_btn.setEnabled(False)
-        cfg = self.config()
+        self.benchmark_running = True
+        self.statusBar().showMessage("Measuring capture and encoding throughput for three seconds…")
         height, width = sample.rgb.shape[:2]
         width, height = (cfg.width, cfg.height) if cfg.width else (width // 2 * 2, height // 2 * 2)
         encoder = cfg.encoder
-        source_fps = getattr(self.sources, "phone" if self.mode == "phone" else "screen").fps()
         refresh = self.monitor.currentData().refreshRate() if self.monitor.currentData() else 30
+        self.desktop.set_rate(min(120, max(30, round(refresh))))
 
         def measure():
             # Measure the actual frame conversion and encoding path with captured content.
@@ -841,12 +873,17 @@ class MainWindow(QMainWindow):
                     count += 1
                 ctx.encode()
                 measured = count / (time.perf_counter() - start)
-                stable = min(measured * 0.7, refresh if cfg.mode != "phone" else source_fps)
+                source_fps = getattr(self.sources, "phone" if cfg.mode == "phone" else "screen").fps()
+                overhead = 0.5 if cfg.mode == "both" and cfg.layout == "separate" else 1
+                stable = min(measured * 0.7 * overhead, refresh if cfg.mode != "phone" else source_fps)
+                if stable >= 120 and source_fps < 115:
+                    stable = 60
                 result = {
                     "available": True,
                     "fps": measured,
                     "source_fps": source_fps,
-                    "stable": max([f for f in (30, 60, 120) if f <= stable] or [30]),
+                    "stable": max([f for f in (15, 30, 60, 120) if f <= stable] or [15]),
+                    "limited": stable < 15,
                 }
             except Exception as exc:
                 result["error"] = str(exc)
@@ -855,8 +892,10 @@ class MainWindow(QMainWindow):
         threading.Thread(target=measure, name="throughput-probe", daemon=True).start()
 
     def on_benchmark(self, result):
+        self.benchmark_running = False
         self.benchmark_btn.setEnabled(True)
         if not result["available"]:
+            self.start_after_benchmark = False
             self.on_message("error", result["error"])
             return
         self.measured_fps = result["stable"]
@@ -864,8 +903,14 @@ class MainWindow(QMainWindow):
             self.fps.addItem("120 FPS (measured capacity)", 120)
         self.on_message(
             "status",
-            f"Measured {result['fps']:.1f} encode FPS; capture events {result['source_fps']:.1f}/s. Auto selects {self.measured_fps} FPS with headroom. Content and thermal load can change performance.",
+            f"Measured {result['fps']:.1f} encode FPS; capture events {result['source_fps']:.1f}/s. Auto selects {self.measured_fps} FPS. "
+            + ("Measured capacity is low; reduce output resolution. " if result["limited"] else "A 30% encoding margin is reserved. ")
+            + "Content and thermal load can change performance.",
         )
+        if self.start_after_benchmark:
+            self.start_after_benchmark = False
+            if not self.closing:
+                self.start_recording(measured=True)
 
     def library_action(self, action):
         row = self.recordings.currentRow()
@@ -877,6 +922,11 @@ class MainWindow(QMainWindow):
             return
         path = Path(item["path"])
         try:
+            if action in {"rename", "delete"} and any(
+                j["recording_id"] == ident and j["status"] in {"queued", "running"}
+                for j in self.library.jobs()
+            ):
+                raise ValueError("Cancel compression for this recording before changing its file")
             if action == "play":
                 QDesktopServices.openUrl(QUrl.fromLocalFile(str(path)))
             elif action == "folder":
@@ -912,6 +962,10 @@ class MainWindow(QMainWindow):
                 )
                 if target:
                     destination = Path(target)
+                    if destination.suffix.lower() != path.suffix.lower():
+                        raise ValueError(
+                            "A copied export must keep the original extension. Use Compress again to create MP4."
+                        )
 
                     def copy():
                         try:
@@ -1026,6 +1080,7 @@ class MainWindow(QMainWindow):
     def set_theme(self, theme):
         self.library.set_setting("theme", theme)
         self.setStyleSheet(stylesheet(theme == "Light"))
+        apply_window_effects(self, theme == "Dark")
 
     def on_message(self, kind, text):
         self.statusBar().showMessage(text)
@@ -1110,7 +1165,7 @@ class MainWindow(QMainWindow):
         self.timer_label.setText(
             duration(self.recorder.clock.elapsed() if active and self.recorder.clock else 0)
         )
-        self.start_btn.setEnabled(not active and not self.closing)
+        self.start_btn.setEnabled(not active and not self.closing and not self.benchmark_running)
         self.pause_btn.setEnabled(state in {State.RECORDING, State.PAUSED})
         self.pause_btn.setText("Resume" if state == State.PAUSED else "Pause")
         self.stop_btn.setEnabled(state in {State.RECORDING, State.PAUSED})
@@ -1122,7 +1177,7 @@ class MainWindow(QMainWindow):
             self.preview_btn,
             *self.mode_group.buttons(),
         ]:
-            widget.setEnabled(not active)
+            widget.setEnabled(not active and not self.benchmark_running)
         if self.mode == "phone":
             self.preview_btn.setEnabled(False)
         if self.last_state != state and state in {State.IDLE, State.ERROR}:
@@ -1152,7 +1207,7 @@ class MainWindow(QMainWindow):
             self.preview.image = QImage()
         self.preview.update()
         server_live = self.server and self.server.thread and self.server.thread.is_alive()
-        self.server_btn.setEnabled(True)
+        self.server_btn.setEnabled(not self.server_starting)
         self.server_btn.setText("Stop phone server" if server_live else "Start phone server")
         self.networks.setEnabled(not server_live)
         self.phone_label.setText(self.server.state if server_live else "Phone offline")
@@ -1166,10 +1221,14 @@ class MainWindow(QMainWindow):
             metrics = self.recorder.metrics
             elapsed = self.recorder.clock.elapsed() if self.recorder.clock else 0
             free = shutil.disk_usage(self.output).free
+            gpu = f"{self.resources.gpu}%" if self.resources.gpu is not None else "unavailable"
             self.metrics_label.setText(
                 f"Capture {self.sources.screen.fps():.0f} · Phone {self.sources.phone.fps():.0f} FPS   |   Encoded {metrics.get('encoded', 0) / max(0.1, elapsed):.1f} FPS   |   Skipped {metrics.get('skipped', 0)}   |   Encode {metrics.get('latency_ms', 0):.1f} ms   |   CPU {self.process.cpu_percent():.0f}%   |   RAM {self.process.memory_info().rss / 1024**2:.0f} MB   |   File {filesize(metrics.get('bytes', 0))}   |   Free {filesize(free)}"
             )
             self.refresh_tables()
+            self.metrics_label.setToolTip(
+                f"System GPU load: {gpu} · System memory use: {self.resources.memory_pressure:.0f}% · CPU percentage is per process and may exceed 100% across cores. Frame rate in the library is measured from decoded frames, not the stream's nominal rate."
+            )
             if server_live and self.server.address not in {i["address"] for i in interfaces()}:
                 self.server.stop()
                 self.on_message(
@@ -1177,7 +1236,7 @@ class MainWindow(QMainWindow):
                     "The selected network address disappeared. Reconnect Wi-Fi, refresh networks, and start a new phone session.",
                 )
         if self.closing:
-            if active:
+            if active or self.server_starting:
                 return
             if not self.shutdown_started:
                 self.shutdown_started = True
@@ -1188,6 +1247,7 @@ class MainWindow(QMainWindow):
                 if self.server:
                     self.server.stop()
                 self.compression.stop()
+                self.resources.stop()
             if self.compression.thread.is_alive() or (server_live):
                 return
             self.timer.stop()
