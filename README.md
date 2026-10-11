@@ -34,7 +34,7 @@ Qt documents its Wayland screen capture as experimental. The target display is s
 
 ## Installation
 
-There is no production release until the [release gates](docs/release-verification.json) pass. GitHub Actions builds platform-specific candidate artifacts. Download only artifacts from a successful run for the commit you intend to test.
+There is no production release until the [release gates](docs/release-verification.json) pass. GitHub Actions builds and executes platform-specific candidates. Public binary uploads are disabled until the dependency license/source audit passes; verification reports remain available. Build locally using the instructions below. A successful CI build alone is not release approval.
 
 ### Windows
 
@@ -198,7 +198,7 @@ The public certificate setup endpoint is separate from camera/signaling endpoint
 
 ## Known limitations
 
-See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows 10/11 display and audio capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. Windows Server CI capture does not certify Windows client hardware. Zero-copy composition and IPv6-only pairing are not implemented. Windows 11 system backdrop integration uses the supported DWM API where available; Linux and unsupported Windows versions use opaque surfaces. GPU metrics depend on driver interfaces. AppImage extraction and execution are tested; FUSE mounting and clean-machine portability still require validation. No production compatibility or performance guarantee is made for these gaps.
+See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows 10/11 display and audio capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. Windows Server CI capture does not certify Windows client hardware. Zero-copy composition and IPv6-only pairing are not implemented. Windows 11 system backdrop integration uses the supported DWM API where available; Linux and unsupported Windows versions use opaque surfaces. GPU metrics depend on driver interfaces. AppImage extraction and execution are tested in Ubuntu CI; normal FUSE launch also passed locally on Arch. Clean-machine portability still requires validation. No production compatibility or performance guarantee is made for these gaps.
 
 ## License and contributions
 

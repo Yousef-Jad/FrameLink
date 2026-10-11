@@ -43,7 +43,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ inputs.tag }}
         run: |
-          test -f release-assets/LumaCapture-Windows-verification/LumaCapture-Windows-x64.zip
-          test -f release-assets/LumaCapture-Linux-verification/LumaCapture-Linux-x86_64.tar.gz
-          test -f release-assets/LumaCapture-Linux-verification/LumaCapture-Linux-x86_64.AppImage
+          test -f release-assets/LumaCapture-Windows-packages/LumaCapture-Windows-x64.zip
+          test -f release-assets/LumaCapture-Linux-packages/LumaCapture-Linux-x86_64.tar.gz
+          test -f release-assets/LumaCapture-Linux-packages/LumaCapture-Linux-x86_64.AppImage
           gh release create "$RELEASE_TAG" --verify-tag --title "LumaCapture $RELEASE_TAG" --notes-file docs/RELEASE_NOTES.md release-assets/*/*.zip release-assets/*/*.tar.gz release-assets/*/*.AppImage release-assets/*/*.sha256

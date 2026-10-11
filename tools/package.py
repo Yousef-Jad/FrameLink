@@ -25,6 +25,9 @@ def main():
     target = ROOT / "dist" / "LumaCapture"
     output = ROOT / "artifacts"
     output.mkdir(exist_ok=True)
+    manifest = output / "package-inventory.json"
+    subprocess.run([sys.executable, str(ROOT / "tools/package_inventory.py"), str(target), str(manifest)], check=True)
+    shutil.copy(manifest, target / "package-inventory.json")
     executable = target / ("LumaCapture.exe" if sys.platform == "win32" else "LumaCapture")
     env = os.environ | {"QT_QPA_PLATFORM": "offscreen"}
     import tempfile

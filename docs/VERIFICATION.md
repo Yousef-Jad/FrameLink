@@ -20,16 +20,20 @@ Synthetic media sources are confined to test fixtures and the explicit smoke-tes
 
 - [CI run 38165084721](https://github.com/Yousef-Jad/LumaCapture/actions/runs/38165084721), commit `ee333a2`: both native runners passed 37 tests, archive extraction and frozen application execution. Windows Server 2022 captured genuine desktop frames: H.264, 1024×768, 5.066 seconds, 152 frames, no audio. This verifies that runner's capture path, not Windows 10/11 client devices.
 - Chromium 153.0.8010.12 browser integration: real HTTPS CA trust in an isolated NSS database, without certificate-error bypass. Browser test camera/microphone streamed over encrypted WebRTC; phone-only recording produced H.264/AAC at 640×480, around 30 encoded FPS. Pairing, recording indicator, pause/resume, camera reacquisition, reconnect, desktop disconnect, fresh QR reuse in an open tab, and cancellation of pending camera acquisition were exercised. The camera is synthetic and does not verify Android Chrome or iPhone Safari.
-- A local AppImage was constructed from the frozen application and executed successfully through extraction mode. FUSE mounting and clean-machine portability remain unverified.
+- A local AppImage was constructed from the frozen application and executed successfully through extraction mode. Normal FUSE launch also passed on this Arch host. Clean-machine portability remains unverified.
+
+- [CI run 38166403701](https://github.com/Yousef-Jad/LumaCapture/actions/runs/38166403701), commit `1c45077`: 42 tests passed on both Windows Server 2022 and Ubuntu 24.04. Both extracted portable packages passed UI/media smoke tests. Ubuntu AppImage construction and extraction-mode execution passed. Windows screen capture produced 1024×768 H.264, 5.100 seconds, 306 decoded frames. Frozen local Linux X11 capture produced 1280×720 H.264, 5.066 seconds, 152 decoded frames.
 
 Later changes must pass CI again before being described as verified packages. Local browser checks can be repeated using `pip install playwright==1.63.0`, `playwright install chromium`, and `python tools/browser_check.py`; Linux `bubblewrap` and NSS `certutil` are required. The test mounts a temporary CA trust database into the browser namespace and does not modify the user's certificate trust.
 
 ## Pending release gates
 
-Windows 10/11 device capture and audio, clean-machine Linux portability and AppImage FUSE mounting; physical Android Chrome and iPhone Safari with manually trusted certificates; router and both hotspot directions without internet; long-duration A/V drift; dependency license/source obligations.
+Windows 10/11 device capture and audio, clean-machine Linux portability; physical Android Chrome and iPhone Safari with manually trusted certificates; router and both hotspot directions without internet; long-duration A/V drift; dependency license/source obligations.
 
 ## Incomplete requested features
 
 Zero-copy capture/composition, Linux compositor blur, IPv6-only pairing, and guaranteed target-size multipass compression are not implemented. Windows 11 DWM backdrop integration and optional NVIDIA/AMD utilization reporting are implemented but require applicable hardware verification. Windows WASAPI loopback is implemented but hardware testing is pending. Default originals retention is implemented; automatic original cleanup is deliberately unavailable.
 
 A versioned public release remains blocked while the required evidence manifest is incomplete.
+
+Binary CI uploads are gated on the dependency license/source audit as well as build success. Historical candidate bundles are withdrawn while that audit is incomplete; CI logs retain the verification evidence. See [distribution audit](DISTRIBUTION_AUDIT.md).

@@ -59,9 +59,25 @@ jobs:
           path: |
             artifacts/*.xml
             artifacts/*.png
+            artifacts/*-result.json
+            artifacts/package-inventory.json
+          if-no-files-found: warn
+      - name: Read binary distribution gate
+        id: distribution
+        shell: python
+        run: |
+          import json, os
+          entry = json.load(open('docs/release-verification.json'))['dependency_license_audit']
+          allowed = entry['verified'] is True and bool(entry['evidence'].strip())
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write(f"allowed={str(allowed).lower()}\n")
+      - uses: actions/upload-artifact@v4
+        if: steps.distribution.outputs.allowed == 'true'
+        with:
+          name: LumaCapture-${{ runner.os }}-packages
+          path: |
             artifacts/*.zip
             artifacts/*.tar.gz
             artifacts/*.AppImage
             artifacts/*.sha256
-            artifacts/*-result.json
-          if-no-files-found: warn
+          if-no-files-found: error

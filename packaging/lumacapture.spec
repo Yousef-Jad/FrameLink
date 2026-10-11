@@ -5,8 +5,7 @@ from PyInstaller.utils.hooks import collect_data_files, collect_dynamic_libs, co
 root = Path(SPECPATH).parent
 binaries = collect_dynamic_libs('av') + collect_dynamic_libs('pylibsrtp')
 datas = collect_data_files('lumacapture')
-for package in ('aiortc', 'av', 'aiohttp', 'cryptography', 'psutil', 'qrcode', 'numpy', 'pillow', 'PySide6-Essentials', 'PySide6-Addons'):
-    datas += copy_metadata(package)
+datas += copy_metadata('lumacapture', recursive=True)
 for document in ('LICENSE', 'README.md', 'THIRD_PARTY_NOTICES.md'):
     datas.append((str(root/document), '.'))
 hidden = collect_submodules('av') + collect_submodules('aiortc') + ['PySide6.QtNetwork', 'PySide6.QtSvg']

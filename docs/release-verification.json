@@ -1,12 +1,42 @@
 {
-  "windows_package": {"verified": false, "evidence": ""},
-  "linux_package": {"verified": false, "evidence": ""},
-  "windows_capture": {"verified": false, "evidence": ""},
-  "linux_x11_capture": {"verified": false, "evidence": ""},
-  "linux_wayland_capture": {"verified": false, "evidence": ""},
-  "android_chrome": {"verified": false, "evidence": ""},
-  "ios_safari": {"verified": false, "evidence": ""},
-  "offline_hotspot": {"verified": false, "evidence": ""},
-  "audio_sync": {"verified": false, "evidence": ""},
-  "dependency_license_audit": {"verified": false, "evidence": ""}
+  "windows_package": {
+    "verified": true,
+    "evidence": "https://github.com/Yousef-Jad/LumaCapture/actions/runs/38166403701 (commit 1c45077); Windows Server 2022 built portable ZIP, extracted it, and ran the frozen UI/media smoke test."
+  },
+  "linux_package": {
+    "verified": true,
+    "evidence": "https://github.com/Yousef-Jad/LumaCapture/actions/runs/38166403701 (commit 1c45077); Ubuntu 24.04 portable archive and AppImage extraction-mode runtime tests passed."
+  },
+  "windows_capture": {
+    "verified": false,
+    "evidence": "Windows Server 2022 CI captured 1024x768 H.264, 306 frames in 5.100 seconds. Physical Windows 10/11 validation is still required."
+  },
+  "linux_x11_capture": {
+    "verified": true,
+    "evidence": "https://github.com/Yousef-Jad/LumaCapture/actions/runs/38166403701 (commit 1c45077); native Qt X11 capture saved and decoded actual Xvfb desktop video."
+  },
+  "linux_wayland_capture": {
+    "verified": true,
+    "evidence": "Arch Linux/Hyprland through xdg-desktop-portal-wlr and PipeWire: 1920x1080 H.264, 5.033 seconds, 78 decoded frames; native capture passed, nominal 30 FPS was not sustained. See docs/VERIFICATION.md."
+  },
+  "android_chrome": {
+    "verified": false,
+    "evidence": "Browser page and encrypted transport tested in Chromium with synthetic camera; physical Android Chrome and trust setup unverified."
+  },
+  "ios_safari": {
+    "verified": false,
+    "evidence": "Safari-compatible camera APIs and manual root-trust flow implemented; physical iPhone Safari unverified."
+  },
+  "offline_hotspot": {
+    "verified": false,
+    "evidence": ""
+  },
+  "audio_sync": {
+    "verified": false,
+    "evidence": ""
+  },
+  "dependency_license_audit": {
+    "verified": false,
+    "evidence": "Incomplete corresponding-source and notice bundle; see docs/DISTRIBUTION_AUDIT.md. Binary publication remains blocked."
+  }
 }
