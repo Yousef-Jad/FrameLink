@@ -7,9 +7,9 @@ import pytest
 from aiohttp import ClientSession, web
 from aiortc import RTCPeerConnection, RTCConfiguration, RTCSessionDescription, VideoStreamTrack
 from cryptography import x509
-from lumacapture.media.buffers import Sources
-from lumacapture.security.certificates import Certificates
-from lumacapture.networking.server import PhoneServer
+from framelink.media.buffers import Sources
+from framelink.security.certificates import Certificates
+from framelink.networking.server import PhoneServer
 
 
 @pytest.fixture

@@ -12,7 +12,7 @@ try:
         [
             sys.executable,
             "-m",
-            "lumacapture.app",
+            "framelink.app",
             "--capture-test",
             str(output),
             "--data-dir",

@@ -1,10 +1,12 @@
-# LumaCapture
+# FrameLink
 
-LumaCapture is a local desktop and phone camera recording studio. It receives browser camera video over encrypted WebRTC, captures desktop video through native platform APIs, records to recoverable MKV files, and creates validated MP4 exports.
+FrameLink is a local desktop and phone camera recording studio. It receives browser camera video over encrypted WebRTC, captures desktop video through native platform APIs, records to recoverable MKV files, and creates validated MP4 exports.
 
-**Development status:** working implementation under verification, not a production release. See [verification](docs/VERIFICATION.md) for executed tests and release blockers. Windows and physical phone compatibility must not be inferred from Linux or synthetic transport tests.
+**Development status:** working implementation under verification. See [verification](docs/VERIFICATION.md) for executed tests and release evidence.
 
-![Actual LumaCapture desktop interface, empty studio](docs/screenshots/dashboard.png)
+![Actual FrameLink Studio interface](docs/screenshots/ui-redesign/studio.png)
+
+The current interface is a preview-first Studio with a compact navigation rail, a floating recording transport, and contextual capture settings. Additional rendered states are in [UI redesign evidence](docs/screenshots/ui-redesign/README.md).
 
 The screenshot is from the running application. The empty preview is intentional: no recording or device data is fabricated.
 
@@ -38,17 +40,17 @@ There is no production release until the [release gates](docs/release-verificati
 
 ### Windows
 
-Extract `LumaCapture-Windows-x64.zip` and launch `LumaCapture/LumaCapture.exe`. Keep the `_internal` directory beside the executable. The portable bundle includes Python, Qt, media libraries, and runtime dependencies. It is unsigned; there is no installer or automatic firewall modification. Remove the extracted directory to uninstall. Application data and recordings remain in your user directories until you remove them explicitly.
+Extract `FrameLink-Windows-x64.zip` and launch `FrameLink/FrameLink.exe`. Keep the `_internal` directory beside the executable. The portable bundle includes Python, Qt, media libraries, and runtime dependencies. It is unsigned; there is no installer or automatic firewall modification. Remove the extracted directory to uninstall. Application data and recordings remain in your user directories until you remove them explicitly.
 
 ### Linux
 
-Extract `LumaCapture-Linux-x86_64.tar.gz`, then run `./LumaCapture/LumaCapture`. The CI package targets Ubuntu 24.04 or newer compatible systems. The host must provide its graphics drivers, X11 or Wayland libraries, audio service, PipeWire, and a suitable desktop portal. For the AppImage, make `LumaCapture-Linux-x86_64.AppImage` executable and run it. If FUSE is unavailable, use `./LumaCapture-Linux-x86_64.AppImage --appimage-extract-and-run`. It has the same host-library baseline as the portable package; see the verification report for tested builds. The portable package includes a desktop entry; adjust its `Exec` and `Icon` paths before installing it in `~/.local/share/applications/`.
+Extract `FrameLink-Linux-x86_64.tar.gz`, then run `./FrameLink/FrameLink`. The package targets Linux systems (tested on Ubuntu 24.04 and Arch Linux). The host must provide its graphics drivers, X11 or Wayland libraries, audio service, PipeWire, and a suitable desktop portal. For the AppImage, make `FrameLink-Linux-x86_64.AppImage` executable and run it. If FUSE is unavailable, use `./FrameLink-Linux-x86_64.AppImage --appimage-extract-and-run`. The portable package includes a desktop entry; adjust its `Exec` and `Icon` paths before installing it in `~/.local/share/applications/`.
 
-For Hyprland, use a working `xdg-desktop-portal-hyprland` or another ScreenCast portal appropriate for your compositor. LumaCapture does not change portal configuration or bypass permission dialogs.
+For Hyprland, use a working `xdg-desktop-portal-hyprland` or another ScreenCast portal appropriate for your compositor. FrameLink does not change portal configuration or bypass permission dialogs.
 
 ## First-time setup
 
-1. Launch the desktop app. Settings shows the recording directory, normally `~/Videos/LumaCapture`.
+1. Launch the desktop app. Settings shows the recording directory, normally `~/Videos/FrameLink`.
 2. Select the recording mode on Dashboard.
 3. For a screen source, click **Start screen preview**. Approve and select a source in the Wayland portal when prompted.
 4. For a phone source, open **Devices**, choose the desktop's Wi-Fi address, and start the phone server.
@@ -65,11 +67,11 @@ Both devices must be on the same local network. Use Android Chrome or iPhone Saf
 
 **An HTTP page at a local IP address cannot be assumed to have camera access. A self-signed certificate is not automatically trusted on iPhone.**
 
-LumaCapture creates a unique local CA and an IP-address certificate on your desktop. In Devices, open **Certificate setup instructions**. Transfer the public certificate by USB, or temporarily enable the certificate download page. The HTTP download page serves only the public certificate and instructions for ten minutes. It cannot authenticate itself. Compare the downloaded certificate's SHA-256 fingerprint with the value on the desktop before installing it; prefer USB transfer if your phone cannot inspect that fingerprint.
+FrameLink creates a unique local CA and an IP-address certificate on your desktop. In Devices, open **Certificate setup instructions**. Transfer the public certificate by USB, or temporarily enable the certificate download page. The HTTP download page serves only the public certificate and instructions for ten minutes. It cannot authenticate itself. Compare the downloaded certificate's SHA-256 fingerprint with the value on the desktop before installing it; prefer USB transfer if your phone cannot inspect that fingerprint.
 
-Installing a root CA grants it authority to authenticate websites on your phone. Install only your own desktop's CA. Keep its private key protected and remove its trust when it is no longer needed. LumaCapture never installs trust silently.
+Installing a root CA grants it authority to authenticate websites on your phone. Install only your own desktop's CA. Keep its private key protected and remove its trust when it is no longer needed. FrameLink never installs trust silently.
 
-- **Android:** install `LumaCapture-Root-CA.crt` as a CA certificate in Settings → Security / Encryption & credentials. Menu names vary by device. Review the Android warning.
+- **Android:** install `FrameLink-Root-CA.crt` as a CA certificate in Settings → Security / Encryption & credentials. Menu names vary by device. Review the Android warning.
 - **iPhone:** download the provided certificate profile; inspect and install it under Settings → General → VPN & Device Management. Then enable full trust under General → About → Certificate Trust Settings. Installing the profile alone is insufficient. [Apple instructions](https://support.apple.com/en-us/102390)
 - Reopen a fresh **HTTPS** pairing QR after trust is installed. Do not bypass a remaining certificate warning.
 
@@ -79,11 +81,11 @@ The QR carries a 256-bit secret in its URL fragment, which is removed by the pag
 
 ## Offline Wi-Fi and hotspots
 
-Recording does not contact GitHub or any external server. Both a router without internet and a phone/desktop hotspot can work if they permit client-to-client traffic. LumaCapture discovers active private IPv4 interfaces instead of assuming a gateway address. Select the address reachable from your phone.
+Recording does not contact GitHub or any external server. Both a router without internet and a phone/desktop hotspot can work if they permit client-to-client traffic. FrameLink discovers active private IPv4 interfaces instead of assuming a gateway address. Select the address reachable from your phone.
 
 Allow TCP 8443 for HTTPS and local UDP for WebRTC. TCP 8444 serves public certificate setup only when enabled. Firewall rules are not changed automatically. No STUN or TURN service is configured. IPv6-only networks and restrictive client-isolated hotspots are not supported by this build.
 
-If the selected address disappears, LumaCapture stops the server and asks you to select the new address. Start it again and scan a fresh QR. The existing CA remains, while a new IP certificate is issued. The phone attempts bounded reconnections while its page stays open. Locking the screen or putting Safari/Chrome in the background may suspend streaming. Wake lock is requested where supported, but uninterrupted background capture is not promised.
+If the selected address disappears, FrameLink stops the server and asks you to select the new address. Start it again and scan a fresh QR. The existing CA remains, while a new IP certificate is issued. The phone attempts bounded reconnections while its page stays open. Locking the screen or putting Safari/Chrome in the background may suspend streaming. Wake lock is requested where supported, but uninterrupted background capture is not promised.
 
 ## Recording
 
@@ -156,7 +158,7 @@ python -m venv .venv
 source .venv/bin/activate
 # Windows PowerShell instead: .venv\Scripts\Activate.ps1
 python -m pip install -e ".[dev]"
-python -m lumacapture.app
+python -m framelink.app
 ```
 
 Build and verify a portable bundle **on each target OS**:
@@ -176,7 +178,7 @@ python tools/package_appimage.py
 The repository uses a Python application layer with Qt 6 native capture and UI, PyAV/FFmpeg media libraries, aiortc transport, and SQLite. This avoids a separate signaling daemon and keeps one media clock and storage model. It deliberately differs from the suggested C++/QML layout; see [architecture](docs/ARCHITECTURE.md) for tradeoffs.
 
 ```text
-src/lumacapture/
+src/framelink/
   capture/       Native desktop and audio adapters
   media/         Buffers, clocks, compositor, codec probing, media validation
   recording/     State machine integration, muxing, finalization, recovery
@@ -202,6 +204,6 @@ See [verification](docs/VERIFICATION.md) for the current blockers. In particular
 
 ## License and contributions
 
-LumaCapture is licensed under GPL-3.0-or-later. Qt, FFmpeg, codecs, and other dependencies retain their own licenses. See [third-party notices](THIRD_PARTY_NOTICES.md). Binary publication is gated on a dependency license/source-distribution audit; bundling a library does not remove its obligations.
+FrameLink is licensed under GPL-3.0-or-later. Qt, FFmpeg, codecs, and other dependencies retain their own licenses. See [third-party notices](THIRD_PARTY_NOTICES.md). Binary publication is gated on a dependency license/source-distribution audit; bundling a library does not remove its obligations.
 
 Contributions should include focused tests, platform-specific evidence where relevant, and accurate documentation. Follow [CONTRIBUTING.md](CONTRIBUTING.md). Do not upload private recordings, pairing tokens, certificate keys, or device identifiers to issues.

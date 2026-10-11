@@ -14,7 +14,7 @@ from packaging.utils import canonicalize_name
 
 def inventory(target):
     dependencies = []
-    pending, seen = ["lumacapture"], set()
+    pending, seen = ["framelink"], set()
     while pending:
         name = canonicalize_name(pending.pop())
         if name in seen:

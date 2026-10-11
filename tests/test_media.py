@@ -5,12 +5,12 @@ import json
 import time
 import numpy as np
 import pytest
-from lumacapture.media.encode import validate_media, inspect_media
-from lumacapture.media.model import RecordingConfig, State
-from lumacapture.media.buffers import Sources
-from lumacapture.compression.queue import compress, CompressionSettings, CompressionQueue, Cancelled
-from lumacapture.recording.engine import Recorder, recover_recordings
-from lumacapture.storage.library import Library
+from framelink.media.encode import validate_media, inspect_media
+from framelink.media.model import RecordingConfig, State
+from framelink.media.buffers import Sources
+from framelink.compression.queue import compress, CompressionSettings, CompressionQueue, Cancelled
+from framelink.recording.engine import Recorder, recover_recordings
+from framelink.storage.library import Library
 from conftest import wait_until
 
 
@@ -135,7 +135,7 @@ def test_queue_and_library(media_file, tmp_path):
 def test_interrupted_recording_recovery(media_file, tmp_path):
     output = tmp_path / "recordings"
     output.mkdir()
-    partial = output / "LumaCapture-interrupted.partial.mkv"
+    partial = output / "FrameLink-interrupted.partial.mkv"
     shutil.copyfile(media_file, partial)
     library = Library(tmp_path / "library")
     recovered, failures = recover_recordings(output, library)
@@ -164,7 +164,7 @@ def test_library_safe_rename_and_metadata(media_file, tmp_path):
 
 @pytest.mark.integration
 def test_encoder_initialization_falls_back_to_real_software(tmp_path, monkeypatch):
-    import lumacapture.recording.engine as module
+    import framelink.recording.engine as module
 
     original_writer = module.MediaWriter
 
@@ -237,7 +237,7 @@ def test_actual_process_interruption_recovery(tmp_path):
 import sys, time
 from pathlib import Path
 import numpy as np
-from lumacapture.media.encode import MediaWriter
+from framelink.media.encode import MediaWriter
 path=Path(sys.argv[1])
 writer=MediaWriter(path,320,180,30)
 for i in range(1000):
@@ -245,7 +245,7 @@ for i in range(1000):
     if i==95: print("ready",flush=True)
     time.sleep(.005)
 """
-    partial = tmp_path / "LumaCapture-killed.partial.mkv"
+    partial = tmp_path / "FrameLink-killed.partial.mkv"
     process = subprocess.Popen(
         [sys.executable, "-c", script, str(partial)], stdout=subprocess.PIPE, text=True
     )
@@ -262,7 +262,7 @@ for i in range(1000):
 
 
 def test_audio_intervals_remain_contiguous_under_encoder_jitter(tmp_path, monkeypatch):
-    from lumacapture.media.encode import MediaWriter
+    from framelink.media.encode import MediaWriter
 
     sources = Sources()
     sources.screen.put(np.zeros((180, 320, 3), np.uint8))

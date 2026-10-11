@@ -14,12 +14,12 @@ import tempfile
 import time
 
 from playwright.async_api import async_playwright
-from lumacapture.media.buffers import Sources
-from lumacapture.media.model import RecordingConfig, State
-from lumacapture.networking.server import PhoneServer
-from lumacapture.recording.engine import Recorder
-from lumacapture.security.certificates import Certificates
-from lumacapture.storage.library import Library
+from framelink.media.buffers import Sources
+from framelink.media.model import RecordingConfig, State
+from framelink.networking.server import PhoneServer
+from framelink.recording.engine import Recorder
+from framelink.security.certificates import Certificates
+from framelink.storage.library import Library
 
 
 async def wait_for(predicate, timeout=20):
@@ -36,7 +36,7 @@ async def main():
             raise RuntimeError(f"{command} is required for isolated browser trust testing")
     output = Path("artifacts/browser-check").resolve()
     output.mkdir(parents=True, exist_ok=True)
-    with tempfile.TemporaryDirectory(prefix="lumacapture-browser-") as directory:
+    with tempfile.TemporaryDirectory(prefix="framelink-browser-") as directory:
         root = Path(directory)
         certificates = Certificates(root / "certificates")
         nss = root / "nssdb"
@@ -49,7 +49,7 @@ async def main():
                 "-d",
                 "sql:" + str(nss),
                 "-n",
-                "LumaCapture integration CA",
+                "FrameLink integration CA",
                 "-t",
                 "C,,",
                 "-i",

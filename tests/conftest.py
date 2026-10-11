@@ -1,7 +1,7 @@
 import time
 import pytest
 import numpy as np
-from lumacapture.media.encode import MediaWriter
+from framelink.media.encode import MediaWriter
 
 
 @pytest.fixture

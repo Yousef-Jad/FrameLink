@@ -1,9 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=LumaCapture
-Comment=Local desktop and phone camera recording studio
-Exec=LumaCapture
-Icon=lumacapture
-Terminal=false
-Categories=AudioVideo;Recorder;
-StartupNotify=true

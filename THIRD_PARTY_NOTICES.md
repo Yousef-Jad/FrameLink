@@ -1,6 +1,6 @@
 # Third-party notices
 
-LumaCapture application code is GPL-3.0-or-later. Its packages include unmodified third-party components whose notices and license terms continue to apply.
+FrameLink application code is GPL-3.0-or-later. Its packages include unmodified third-party components whose notices and license terms continue to apply.
 
 | Component | Upstream | License family / distribution concern |
 |---|---|---|

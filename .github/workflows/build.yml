@@ -31,18 +31,18 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: python -m pytest -q --junitxml=artifacts/tests.xml
       - name: Validate mobile JavaScript
-        run: node --check src/lumacapture/web/camera.js
+        run: node --check src/framelink/web/camera.js
       - name: Runtime smoke test
         env:
           QT_QPA_PLATFORM: offscreen
-        run: python -m lumacapture.app --smoke-test --data-dir artifacts/smoke-data --screenshot artifacts/dashboard.png
+        run: python -m framelink.app --smoke-test --data-dir artifacts/smoke-data --screenshot artifacts/dashboard.png
       - name: Real X11 capture in virtual display
         if: runner.os == 'Linux'
         env:
           QT_QPA_PLATFORM: xcb
           XDG_SESSION_TYPE: x11
           WAYLAND_DISPLAY: ''
-        run: xvfb-run -a -s '-screen 0 1280x720x24' python -m lumacapture.app --capture-test artifacts/x11-capture --data-dir artifacts/x11-data
+        run: xvfb-run -a -s '-screen 0 1280x720x24' python -m framelink.app --capture-test artifacts/x11-capture --data-dir artifacts/x11-data
       - name: Exercise Windows display capture when a desktop is available
         if: runner.os == 'Windows'
         continue-on-error: true
@@ -55,7 +55,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: LumaCapture-${{ runner.os }}-verification
+          name: FrameLink-${{ runner.os }}-verification
           path: |
             artifacts/*.xml
             artifacts/*.png
@@ -74,7 +74,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: steps.distribution.outputs.allowed == 'true'
         with:
-          name: LumaCapture-${{ runner.os }}-packages
+          name: FrameLink-${{ runner.os }}-packages
           path: |
             artifacts/*.zip
             artifacts/*.tar.gz

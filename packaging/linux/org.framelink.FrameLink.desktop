@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=FrameLink
+Comment=Local desktop and phone camera recording studio
+Exec=FrameLink
+Icon=framelink
+Terminal=false
+Categories=AudioVideo;Recorder;
+StartupNotify=true

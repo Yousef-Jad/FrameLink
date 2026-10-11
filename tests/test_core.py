@@ -1,7 +1,7 @@
 import threading
 import numpy as np
 import pytest
-from lumacapture.media.model import (
+from framelink.media.model import (
     StateMachine,
     State,
     SessionClock,
@@ -10,11 +10,11 @@ from lumacapture.media.model import (
     atomic_promote,
     RecordingConfig,
 )
-from lumacapture.media.buffers import VideoBuffer, AudioBuffer
-from lumacapture.capture.desktop import backend_name
-from lumacapture.media.encode import probe_encoder
-from lumacapture.security.pairing import PairingTokens, RateLimiter
-from lumacapture.networking.interfaces import local_address
+from framelink.media.buffers import VideoBuffer, AudioBuffer
+from framelink.capture.desktop import backend_name
+from framelink.media.encode import probe_encoder
+from framelink.security.pairing import PairingTokens, RateLimiter
+from framelink.networking.interfaces import local_address
 
 
 def test_recording_transitions():

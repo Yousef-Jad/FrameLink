@@ -1,4 +1,4 @@
-from lumacapture.app import main
+from framelink.app import main
 
 if __name__ == "__main__":
     raise SystemExit(main())

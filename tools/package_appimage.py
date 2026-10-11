@@ -32,19 +32,19 @@ def main():
         urllib.request.urlretrieve(RUNTIME_URL, runtime)
     if hashlib.sha256(runtime.read_bytes()).hexdigest() != RUNTIME_SHA256:
         raise SystemExit("AppImage runtime checksum changed. Review the upstream runtime before building.")
-    appdir = ROOT / "build/LumaCapture.AppDir"
+    appdir = ROOT / "build/FrameLink.AppDir"
     if appdir.exists():
         shutil.rmtree(appdir)
     (appdir / "usr").mkdir(parents=True)
-    shutil.copytree(ROOT / "dist/LumaCapture", appdir / "usr/bin")
+    shutil.copytree(ROOT / "dist/FrameLink", appdir / "usr/bin")
     shutil.copy(ROOT / "packaging/linux/AppRun", appdir / "AppRun")
     shutil.copy(
-        ROOT / "packaging/linux/org.lumacapture.LumaCapture.desktop",
-        appdir / "org.lumacapture.LumaCapture.desktop",
+        ROOT / "packaging/linux/org.framelink.FrameLink.desktop",
+        appdir / "org.framelink.FrameLink.desktop",
     )
-    shutil.copy(ROOT / "src/lumacapture/assets/lumacapture.png", appdir / "lumacapture.png")
-    shutil.copy(ROOT / "src/lumacapture/assets/lumacapture.png", appdir / ".DirIcon")
-    artifact = ROOT / "artifacts/LumaCapture-Linux-x86_64.AppImage"
+    shutil.copy(ROOT / "src/framelink/assets/framelink.png", appdir / "framelink.png")
+    shutil.copy(ROOT / "src/framelink/assets/framelink.png", appdir / ".DirIcon")
+    artifact = ROOT / "artifacts/FrameLink-Linux-x86_64.AppImage"
     env = os.environ | {"ARCH": "x86_64", "APPIMAGE_EXTRACT_AND_RUN": "1"}
     subprocess.run(
         [str(tool), "--runtime-file", str(runtime), "--no-appstream", str(appdir), str(artifact)],
