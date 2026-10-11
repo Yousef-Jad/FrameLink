@@ -28,13 +28,9 @@ class DesktopCapture(QObject):
     def __init__(self, buffer):
         super().__init__()
         self.buffer = buffer
-        self.capture = QScreenCapture(self)
-        self.session = QMediaCaptureSession(self)
-        self.sink = QVideoSink(self)
-        self.session.setScreenCapture(self.capture)
-        self.session.setVideoSink(self.sink)
-        self.sink.videoFrameChanged.connect(self._frame)
-        self.capture.errorOccurred.connect(lambda code, message: self.error.emit(message))
+        self.capture = None
+        self.session = None
+        self.sink = None
         self.native = None
         self.control = None
         self.active = False
@@ -80,6 +76,29 @@ class DesktopCapture(QObject):
             except Exception as exc:
                 self.changed.emit(f"WGC unavailable ({exc}); using DXGI")
                 self.native = None
+        if self.capture is None:
+            if sys.platform.startswith("linux") and "portal" in backend_name():
+                from PySide6.QtDBus import QDBusConnection, QDBusInterface
+
+                portal = QDBusInterface(
+                    "org.freedesktop.portal.Desktop",
+                    "/org/freedesktop/portal/desktop",
+                    "org.freedesktop.portal.ScreenCast",
+                    QDBusConnection.sessionBus(),
+                )
+                if not portal.isValid():
+                    raise RuntimeError(
+                        "No ScreenCast portal is available. Install and start the portal for your compositor."
+                    )
+                os.environ["QT_SCREEN_CAPTURE_BACKEND"] = "pipewire"
+            self.capture = QScreenCapture(self)
+            self.session = QMediaCaptureSession(self)
+            self.sink = QVideoSink(self)
+            self.session.setScreenCapture(self.capture)
+            self.session.setVideoSink(self.sink)
+            self.sink.videoFrameChanged.connect(self._frame)
+            self.capture.errorOccurred.connect(lambda code, message: self.error.emit(message))
+        self.capture.setMaximumFrameRate(fps)
         self.capture.setScreen(screen)
         self.capture.start()
         self.active = True
@@ -90,6 +109,7 @@ class DesktopCapture(QObject):
             self.control.stop()
             self.control = None
             self.native = None
-        self.capture.stop()
+        if self.capture:
+            self.capture.stop()
         self.active = False
         self.buffer.clear()

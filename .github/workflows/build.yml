@@ -21,7 +21,7 @@ jobs:
           cache: pip
       - name: Linux system dependencies
         if: runner.os == 'Linux'
-        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libxkbcommon0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libpulse0 libpipewire-0.3-0 libxcb-randr0 libxcb-image0 libxcb-render-util0 ffmpeg xvfb
+        run: sudo apt-get update && sudo apt-get install -y libegl1 libopengl0 libxkbcommon0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-xkb1 libxkbcommon-x11-0 libpulse0 pipewire libpipewire-0.3-0 libxcb-randr0 libxcb-image0 libxcb-render-util0 ffmpeg xvfb
       - name: Install project and test tools
         run: python -m pip install -e ".[dev]"
       - name: Check source

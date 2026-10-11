@@ -18,6 +18,11 @@ def main():
     )
     args = parser.parse_args()
     os.environ.setdefault("QT_MEDIA_BACKEND", "ffmpeg")
+    if sys.platform.startswith("linux"):
+        # Qt can select a non-portal fallback on Wayland. Require its native
+        # PipeWire path rather than attempting to grab a compositor window.
+        wayland = os.environ.get("XDG_SESSION_TYPE") == "wayland" or bool(os.environ.get("WAYLAND_DISPLAY"))
+        os.environ["QT_SCREEN_CAPTURE_BACKEND"] = "pipewire" if wayland else "x11"
     from PySide6.QtCore import QStandardPaths, QLockFile, QTimer
     from PySide6.QtWidgets import QApplication, QMessageBox
     from lumacapture.storage.library import Library

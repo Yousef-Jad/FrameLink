@@ -139,7 +139,8 @@ def atomic_promote(source: Path, destination: Path):
     """Never replace an existing recording, even after an interrupted finalization."""
     import os
 
-    with source.open("rb") as handle:
+    # Windows FlushFileBuffers requires a writable file handle.
+    with source.open("r+b") as handle:
         os.fsync(handle.fileno())
     # Hard-link creation is atomic and fails if the destination already exists.
     os.link(source, destination)
