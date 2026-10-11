@@ -1,0 +1,48 @@
+name: Publish verified release
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag whose commit contains completed verification evidence
+        required: true
+      run_id:
+        description: Successful Build and verify run for the exact tagged commit
+        required: true
+permissions:
+  contents: write
+  actions: read
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag }}
+      - name: Check release evidence
+        run: python tools/release_gate.py docs/release-verification.json
+      - name: Verify CI belongs to the tagged commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: |
+          gh run view "$RUN_ID" --json conclusion,headSha,workflowName > /tmp/run.json
+          python - <<'PY'
+          import json, subprocess
+          run = json.load(open('/tmp/run.json'))
+          assert run['conclusion'] == 'success'
+          assert run['workflowName'] == 'Build and verify'
+          assert run['headSha'] == subprocess.check_output(['git', 'rev-parse', 'HEAD'], text=True).strip()
+          PY
+      - name: Download verified platform packages
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RUN_ID: ${{ inputs.run_id }}
+        run: gh run download "$RUN_ID" --dir release-assets
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        run: |
+          test -f release-assets/LumaCapture-Windows-verification/LumaCapture-Windows-x64.zip
+          test -f release-assets/LumaCapture-Linux-verification/LumaCapture-Linux-x86_64.tar.gz
+          gh release create "$RELEASE_TAG" --verify-tag --title "LumaCapture $RELEASE_TAG" --notes-file docs/RELEASE_NOTES.md release-assets/*/*.zip release-assets/*/*.tar.gz release-assets/*/*.sha256

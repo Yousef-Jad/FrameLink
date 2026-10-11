@@ -1,0 +1,12 @@
+{
+  "windows_package": {"verified": false, "evidence": ""},
+  "linux_package": {"verified": false, "evidence": ""},
+  "windows_capture": {"verified": false, "evidence": ""},
+  "linux_x11_capture": {"verified": false, "evidence": ""},
+  "linux_wayland_capture": {"verified": false, "evidence": ""},
+  "android_chrome": {"verified": false, "evidence": ""},
+  "ios_safari": {"verified": false, "evidence": ""},
+  "offline_hotspot": {"verified": false, "evidence": ""},
+  "audio_sync": {"verified": false, "evidence": ""},
+  "dependency_license_audit": {"verified": false, "evidence": ""}
+}
