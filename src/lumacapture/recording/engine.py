@@ -119,11 +119,19 @@ class Recorder:
                 ),
                 encoding="utf-8",
             )
+            with self.machine.lock:
+                self.clock = SessionClock()
+                if self.state == State.PAUSED:
+                    self.clock.pause()
             pts = 0
             audio_pts = 0
             thumbnail = self.output / f"{base}.jpg"
             last_phone = self.sources.phone.latest()
             last_disk_check = 0.0
+            stride = 1
+            window_started = time.monotonic()
+            window_encoded = 0
+            last_written_pts = -1
             # A common playout delay absorbs ordinary local Wi-Fi jitter for both video and audio.
             delay = 0.12
             while not self.stop_event.is_set():
@@ -195,7 +203,23 @@ class Recorder:
                     audio_pts = wanted
                 self.metrics["encoded"] += 1
                 self.metrics["latency_ms"] = (time.perf_counter() - begin) * 1000
-                pts += 1
+                window_encoded += 1
+                last_written_pts = pts
+                if now - window_started >= 4:
+                    observed = window_encoded / (now - window_started)
+                    requested = cfg.fps / stride
+                    # Reduce cadence, preserving timestamps and native dimensions.
+                    # Never report intentional adaptation as successful full-rate encoding.
+                    if observed < requested * 0.8 and requested > 15:
+                        stride = min(stride * 2, cfg.fps // 15)
+                        self.metrics["adapted_fps"] = cfg.fps / stride
+                        self.notify(
+                            "warning",
+                            f"Encoding cannot sustain the requested rate. Cadence reduced to {cfg.fps / stride:g} FPS; resolution and recorded time are preserved.",
+                        )
+                    window_started = now
+                    window_encoded = 0
+                pts += stride
                 if now - last_disk_check > 1:
                     last_disk_check = now
                     self.metrics["bytes"] = sum(w.path.stat().st_size for _, w in writers)
@@ -207,7 +231,7 @@ class Recorder:
             self.notify("status", "Finalizing and validating recorded streams…")
             for _, writer in writers:
                 writer.close()
-            expected = pts / cfg.fps
+            expected = (last_written_pts + 1) / cfg.fps
             for _, writer in writers:
                 info = validate_media(writer.path, expected, audio_enabled)
                 final = writer.path.with_name(writer.path.name.replace(".partial.mkv", ".mkv"))

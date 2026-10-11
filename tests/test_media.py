@@ -143,3 +143,102 @@ def test_library_safe_rename_and_metadata(media_file, tmp_path):
     assert renamed["metadata"]["width"] == 320
     library.set_setting("auto_compress", False)
     assert library.setting("auto_compress") is False
+
+
+@pytest.mark.integration
+def test_encoder_initialization_falls_back_to_real_software(tmp_path, monkeypatch):
+    import lumacapture.recording.engine as module
+
+    original_writer = module.MediaWriter
+
+    def writer(path, width, height, fps, encoder, *args, **kwargs):
+        if encoder == "h264_nvenc":
+            raise RuntimeError("Injected unavailable GPU")
+        return original_writer(path, width, height, fps, encoder, *args, **kwargs)
+
+    monkeypatch.setattr(module, "MediaWriter", writer)
+    sources = Sources()
+    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    library = Library(tmp_path / "library")
+    recorder = Recorder(sources, library, tmp_path / "recordings")
+    recorder.start(RecordingConfig(encoder="h264_nvenc"))
+    wait_until(lambda: recorder.metrics["encoded"] >= 6)
+    recorder.stop()
+    recorder.thread.join(10)
+    assert recorder.state == State.IDLE, recorder.error
+    assert recorder.metrics["encoder"] == "libx264"
+    validate_media(library.recordings()[0]["path"])
+
+
+@pytest.mark.integration
+def test_recording_audio_mixer_writes_actual_samples(tmp_path):
+    import av
+    import threading
+
+    sources = Sources()
+    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    done = threading.Event()
+
+    def feed_audio():
+        while not done.wait(0.01):
+            stamp = time.monotonic()
+            tone = np.sin(np.arange(480) * 2 * np.pi * 440 / 48000).astype(np.float32) * 0.2
+            sources.audio["mic"].put(np.vstack([tone, tone]), stamp - 0.01)
+
+    producer = threading.Thread(target=feed_audio)
+    producer.start()
+    library = Library(tmp_path / "library")
+    recorder = Recorder(sources, library, tmp_path / "recordings")
+    try:
+        recorder.start(RecordingConfig(microphone=True))
+        wait_until(lambda: recorder.metrics["encoded"] >= 18)
+        recorder.pause()
+        time.sleep(0.1)
+        recorder.resume()
+        wait_until(lambda: recorder.metrics["encoded"] >= 25)
+        recorder.stop()
+        recorder.thread.join(10)
+        assert recorder.state == State.IDLE, recorder.error
+        path = library.recordings()[0]["path"]
+        validate_media(path, audio=True)
+        with av.open(path) as container:
+            amplitudes = [float(np.max(np.abs(f.to_ndarray()))) for f in container.decode(audio=0)]
+        assert max(amplitudes) > 0.1
+    finally:
+        done.set()
+        producer.join()
+        recorder.stop()
+        if recorder.thread:
+            recorder.thread.join(10)
+
+
+@pytest.mark.integration
+def test_actual_process_interruption_recovery(tmp_path):
+    import sys
+
+    script = r"""
+import sys, time
+from pathlib import Path
+import numpy as np
+from lumacapture.media.encode import MediaWriter
+path=Path(sys.argv[1])
+writer=MediaWriter(path,320,180,30)
+for i in range(1000):
+    writer.write_video(np.full((180,320,3),i%255,np.uint8),i)
+    if i==95: print("ready",flush=True)
+    time.sleep(.005)
+"""
+    partial = tmp_path / "LumaCapture-killed.partial.mkv"
+    process = subprocess.Popen(
+        [sys.executable, "-c", script, str(partial)], stdout=subprocess.PIPE, text=True
+    )
+    try:
+        assert process.stdout.readline().strip() == "ready"
+    finally:
+        process.kill()
+        process.wait(timeout=5)
+    library = Library(tmp_path / "library")
+    recovered, failures = recover_recordings(tmp_path, library)
+    assert recovered and not failures, failures
+    assert partial.exists()
+    assert validate_media(library.recordings()[0]["path"])["decoded_frames"] > 20

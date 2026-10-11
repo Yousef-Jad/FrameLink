@@ -40,6 +40,7 @@ from PySide6.QtWidgets import (
 )
 from lumacapture.capture.desktop import DesktopCapture, backend_name
 from lumacapture.capture.audio import AudioCapture
+from lumacapture.capture.loopback import WasapiLoopback
 from lumacapture.compression.queue import CompressionQueue, CompressionSettings
 from lumacapture.media.buffers import Sources
 from lumacapture.media.model import RecordingConfig, State
@@ -165,6 +166,9 @@ class MainWindow(QMainWindow):
         self.desktop.changed.connect(lambda text: self.backend_label.setText(text))
         self.microphone = AudioCapture(self.sources.audio["mic"])
         self.system_audio = AudioCapture(self.sources.audio["system"])
+        self.loopback = WasapiLoopback(
+            self.sources.audio["system"], lambda text: self.events.message.emit("error", text)
+        )
         self.microphone.error.connect(lambda text: self.on_message("error", text))
         self.system_audio.error.connect(lambda text: self.on_message("error", text))
         self.server = None
@@ -530,7 +534,14 @@ class MainWindow(QMainWindow):
         self.audio_devices = QMediaDevices.audioInputs()
         for device in self.audio_devices:
             self.mic_device.addItem(device.description(), device)
-            self.system_device.addItem(device.description(), device)
+            if sys.platform != "win32":
+                self.system_device.addItem(device.description(), device)
+        if sys.platform == "win32":
+            try:
+                for device in WasapiLoopback.devices():
+                    self.system_device.addItem(device["name"], device)
+            except Exception as exc:
+                self.system_device.setToolTip(f"WASAPI device discovery failed: {exc}")
         form.addRow("Microphone device", self.mic_device)
         self.system_enabled = QCheckBox("Record a loopback / monitor input exposed by the OS")
         form.addRow("System audio", self.system_enabled)
@@ -541,7 +552,7 @@ class MainWindow(QMainWindow):
             setattr(self, name + "_gain", control)
             form.addRow(name.title() + " gain", control)
         note = label(
-            "System audio requires an actual monitor/loopback input. Windows WASAPI loopback is not exposed by this build. GPU load is not measured. Opaque surfaces are used when no supported compositor blur integration is available.",
+            "System audio uses WASAPI speaker loopback on Windows or a monitor input on Linux. GPU load is not measured. Opaque surfaces are used when no supported compositor blur integration is available.",
             "muted",
         )
         note.setWordWrap(True)
@@ -615,6 +626,7 @@ class MainWindow(QMainWindow):
         try:
             self.recorder.reset()
             cfg = self.config()
+            self.desktop.set_rate(cfg.fps)
             if cfg.microphone:
                 if self.mic_device.currentData() is None:
                     raise ValueError("No microphone input is available")
@@ -622,15 +634,23 @@ class MainWindow(QMainWindow):
             if cfg.system_audio:
                 if self.system_device.currentData() is None:
                     raise ValueError("No system audio input is available")
-                if cfg.microphone and self.system_device.currentIndex() == self.mic_device.currentIndex():
+                if (
+                    sys.platform != "win32"
+                    and cfg.microphone
+                    and self.system_device.currentIndex() == self.mic_device.currentIndex()
+                ):
                     raise ValueError(
                         "Choose different microphone and loopback devices to avoid doubling audio"
                     )
-                self.system_audio.start(self.system_device.currentData())
+                if sys.platform == "win32":
+                    self.loopback.start(self.system_device.currentData())
+                else:
+                    self.system_audio.start(self.system_device.currentData())
             self.recorder.start(cfg)
         except Exception as exc:
             self.microphone.stop()
             self.system_audio.stop()
+            self.loopback.stop()
             self.on_message("error", str(exc))
 
     def pause_recording(self):
@@ -1037,7 +1057,7 @@ class MainWindow(QMainWindow):
                 Path(item["path"]).name,
                 duration(info["duration"]),
                 f"{info['width']} × {info['height']}",
-                f"{info['fps']:.1f}",
+                f"{info.get('measured_fps', info['fps']):.1f}",
                 filesize((original or item)["metadata"]["size"]),
                 filesize(info["size"])
                 if original
@@ -1108,8 +1128,14 @@ class MainWindow(QMainWindow):
         if self.last_state != state and state in {State.IDLE, State.ERROR}:
             self.microphone.stop()
             self.system_audio.stop()
+            self.loopback.stop()
         self.last_state = state
-        cfg = self.recorder.config if active else self.config()
+        try:
+            cfg = self.recorder.config if active else self.config()
+        except ValueError:
+            # Editing a custom dimension may temporarily produce an odd number.
+            # Validation still rejects it when Start is pressed.
+            cfg = RecordingConfig(mode=self.mode)
         screen, phone = self.sources.screen.latest(), self.sources.phone.latest()
         if phone and time.monotonic() - phone.timestamp > 3:
             phone = None
@@ -1158,6 +1184,7 @@ class MainWindow(QMainWindow):
                 self.desktop.stop()
                 self.microphone.stop()
                 self.system_audio.stop()
+                self.loopback.stop()
                 if self.server:
                     self.server.stop()
                 self.compression.stop()

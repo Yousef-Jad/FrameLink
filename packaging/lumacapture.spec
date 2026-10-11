@@ -12,7 +12,10 @@ for document in ('LICENSE', 'README.md', 'THIRD_PARTY_NOTICES.md'):
 hidden = collect_submodules('av') + collect_submodules('aiortc') + ['PySide6.QtNetwork', 'PySide6.QtSvg']
 if sys.platform == 'win32':
     hidden += collect_submodules('windows_capture')
+    hidden += collect_submodules('pyaudiowpatch')
+    datas += copy_metadata('PyAudioWPatch')
     binaries += collect_dynamic_libs('windows_capture')
+    binaries += collect_dynamic_libs('pyaudiowpatch')
 a = Analysis([str(root/'packaging'/'entry.py')], pathex=[str(root/'src')], binaries=binaries, datas=datas,
              hiddenimports=hidden, excludes=['PySide6.QtWebEngineCore', 'PySide6.QtWebEngineWidgets', 'PySide6.QtPdf', 'matplotlib', 'tkinter'])
 pyz = PYZ(a.pure)

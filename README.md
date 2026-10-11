@@ -105,7 +105,7 @@ Choose a phone-disconnection policy: hide/black, freeze the last frame, pause, o
 
 ### Audio
 
-Enable the phone microphone on the mobile page and Phone audio in desktop Settings to record it. Select a desktop microphone if needed. Independent gain controls mix stereo audio with clipping protection. System audio works only when the OS exposes an actual monitor/loopback recording input. Select that input explicitly. Dedicated Windows WASAPI loopback is not implemented.
+Enable the phone microphone on the mobile page and Phone audio in desktop Settings to record it. Select a desktop microphone if needed. Independent gain controls mix stereo audio with clipping protection. System audio uses WASAPI loopback on Windows and an exposed monitor/loopback input on Linux. Select that input explicitly. Windows speaker capture uses WASAPI loopback through PyAudioWPatch; hardware verification is pending.
 
 Sources are normalized onto a monotonic desktop timeline with a 120 ms playout delay. This is receive-time alignment with bounded jitter buffering, not calibrated cross-device clock synchronization. Physical phone lip-sync and long-duration drift require real-device validation; see known limitations.
 
@@ -129,7 +129,7 @@ The queue persists across restarts. In-progress jobs become Interrupted and can 
 
 Encoder discovery actually opens and encodes frames with NVENC, Quick Sync, AMF, and software H.264. A codec listed by FFmpeg alone is insufficient. Failed hardware initialization falls back to software before recording begins. Driver or runtime failures during recording preserve partial media and report an error.
 
-Capture, WebRTC, encoding, and compression run in separate execution paths with bounded receive buffers. The current compositor uses CPU RGB frames and copies; this is not a zero-copy pipeline. High-resolution/high-FPS combined capture can exceed ordinary laptop capacity. Reduce output size or FPS when skipped frames rise. GPU utilization is not measured. Do not run heavy compression alongside demanding capture if it overloads your machine.
+Capture, WebRTC, encoding, and compression run in separate execution paths with bounded receive buffers. The current compositor uses CPU RGB frames and copies; this is not a zero-copy pipeline. High-resolution/high-FPS combined capture can exceed ordinary laptop capacity. A four-second overload window reduces encoding cadence, reports the change, and preserves resolution and timing. Reduce output size or FPS when skipped frames continue to rise. GPU utilization is not measured. Do not run heavy compression alongside demanding capture if it overloads your machine.
 
 ## Troubleshooting
 
@@ -196,7 +196,7 @@ The public certificate setup endpoint is separate from camera/signaling endpoint
 
 ## Known limitations
 
-See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows display capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. Dedicated WASAPI loopback, GPU load metrics, compositor blur integration, zero-copy composition, automatic sustained-load adaptation, IPv6-only pairing, and an AppImage are not complete. No production compatibility or performance guarantee is made for these gaps.
+See [verification](docs/VERIFICATION.md) for the current blockers. In particular: physical Android/iPhone trust and streaming, Windows display capture, offline hotspot operation, and sustained A/V synchronization require real hardware verification. GPU load metrics, compositor blur integration, zero-copy composition, IPv6-only pairing, and an AppImage are not complete. No production compatibility or performance guarantee is made for these gaps.
 
 ## License and contributions
 

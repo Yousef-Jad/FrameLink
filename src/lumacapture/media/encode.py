@@ -171,6 +171,7 @@ def inspect_media(path, full=False):
                 raise ValueError("Output has an empty media stream")
             result["decoded_frames"] = counts[v.index]
             result["duration"] = max(ends.values(), default=result["duration"])
+            result["measured_fps"] = counts[v.index] / max(0.001, result["duration"] - starts.get(v.index, 0))
             if container.streams.audio:
                 a = container.streams.audio[0].index
                 if abs(ends.get(a, 0) - ends.get(v.index, 0)) > 0.3:

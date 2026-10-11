@@ -17,6 +17,7 @@ LumaCapture application code is GPL-3.0-or-later. Its packages include unmodifie
 | psutil | https://github.com/giampaolo/psutil | BSD-3-Clause |
 | qrcode | https://github.com/lincolnloop/python-qrcode | BSD |
 | windows-capture | https://github.com/NiiightmareXD/windows-capture | MIT; Windows-only native adapter |
+| PyAudioWPatch / PortAudio | https://github.com/s0d3s/PyAudioWPatch | MIT / PortAudio license; Windows WASAPI loopback |
 | PyInstaller bootloader | https://pyinstaller.org/ | GPL with bootloader distribution exception |
 
 Package metadata and included license files are collected into portable bundles. This table is not a substitute for inspecting the exact binaries, transitive dependencies, build configurations, and corresponding source obligations. The release license gate remains false until that audit is complete and any required source distribution is prepared. The development packages must not be described as license-audited releases.

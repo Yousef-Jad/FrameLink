@@ -39,6 +39,7 @@ class PhoneServer:
         self.bytes_received = 0
         self.bitrate = 0
         self._ready = threading.Event()
+        self._stop_requested = threading.Event()
 
     @property
     def origin(self):
@@ -56,6 +57,7 @@ class PhoneServer:
             raise ValueError("Stop the existing server before changing network interfaces")
         self.address, self.port = address, port
         self._ready.clear()
+        self._stop_requested.clear()
         self.error = ""
         self.thread = threading.Thread(target=self._thread_main, name="phone-server", daemon=False)
         self.thread.start()
@@ -66,7 +68,8 @@ class PhoneServer:
         try:
             self.loop.run_until_complete(self._start())
             self._ready.set()
-            self.loop.run_forever()
+            if not self._stop_requested.is_set():
+                self.loop.run_forever()
         except Exception as exc:
             self.error = str(exc)
             self.notify("error", f"Phone server: {exc}")
@@ -340,6 +343,7 @@ class PhoneServer:
                 await runner.cleanup()
 
     def stop(self):
+        self._stop_requested.set()
         self.tokens.revoke()
         self.session_secret = None
         self.bootstrap_until = 0

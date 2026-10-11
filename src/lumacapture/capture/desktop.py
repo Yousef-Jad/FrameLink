@@ -113,3 +113,8 @@ class DesktopCapture(QObject):
             self.capture.stop()
         self.active = False
         self.buffer.clear()
+
+    def set_rate(self, fps):
+        self.max_fps = fps
+        if self.capture:
+            self.capture.setMaximumFrameRate(fps)
