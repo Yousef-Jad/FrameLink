@@ -1,0 +1,16 @@
+{
+  "url": "[private LAN HTTPS address redacted]",
+  "tls": "TLSv1.3",
+  "root_sha256": "[device fingerprint redacted]",
+  "leaf_sha256": "[device fingerprint redacted]",
+  "san": [
+    "[private LAN IP redacted]",
+    "127.0.0.1",
+    "localhost"
+  ],
+  "server_auth": true,
+  "valid_until": "2027-01-09T23:20:44+00:00",
+  "verified": true,
+  "phone_trust": "Not observable from the desktop; verify manually on iPhone",
+  "publication_note": "Device identifiers redacted for publication; validation results retained."
+}

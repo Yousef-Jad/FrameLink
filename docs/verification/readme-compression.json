@@ -1,0 +1,192 @@
+{
+  "original": {
+    "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen.mkv",
+    "bytes": 10916125,
+    "sha256": "9305db046b757628a91a7e9a1cd904bd72f044953ae51134d8b47809fb99911c",
+    "probe": {
+      "streams": [
+        {
+          "index": 0,
+          "codec_name": "h264",
+          "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+          "profile": "Constrained Baseline",
+          "codec_type": "video",
+          "codec_tag_string": "[0][0][0][0]",
+          "codec_tag": "0x0000",
+          "mime_codec_string": "avc1.42c028",
+          "width": 1920,
+          "height": 1080,
+          "coded_width": 1920,
+          "coded_height": 1088,
+          "has_b_frames": 0,
+          "pix_fmt": "yuv420p",
+          "level": 40,
+          "chroma_location": "left",
+          "field_order": "progressive",
+          "refs": 1,
+          "is_avc": "true",
+          "nal_length_size": "4",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "30/1",
+          "time_base": "1/1000",
+          "start_pts": 0,
+          "start_time": "0.000000",
+          "bits_per_raw_sample": "8",
+          "nb_read_frames": "899",
+          "extradata_size": 39,
+          "disposition": {
+            "default": 0,
+            "dub": 0,
+            "original": 0,
+            "comment": 0,
+            "lyrics": 0,
+            "karaoke": 0,
+            "forced": 0,
+            "hearing_impaired": 0,
+            "visual_impaired": 0,
+            "clean_effects": 0,
+            "attached_pic": 0,
+            "timed_thumbnails": 0,
+            "non_diegetic": 0,
+            "captions": 0,
+            "descriptions": 0,
+            "metadata": 0,
+            "dependent": 0,
+            "still_image": 0,
+            "multilayer": 0
+          },
+          "tags": {
+            "DURATION": "00:00:30.033000000"
+          }
+        }
+      ],
+      "format": {
+        "filename": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen.mkv",
+        "nb_streams": 1,
+        "nb_programs": 0,
+        "nb_stream_groups": 0,
+        "format_name": "matroska,webm",
+        "format_long_name": "Matroska / WebM",
+        "start_time": "0.000000",
+        "duration": "30.033000",
+        "size": "10916125",
+        "bit_rate": "2907768",
+        "probe_score": 100,
+        "tags": {
+          "ENCODER": "Lavf62.12.101"
+        }
+      }
+    }
+  },
+  "compressed": {
+    "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen-export-21f02e96.mp4",
+    "bytes": 4519737,
+    "sha256": "27d2110a87b8af5d4b0b8fa2a575a7873985ceaa55ebd48701b555a7846e4162",
+    "probe": {
+      "streams": [
+        {
+          "index": 0,
+          "codec_name": "h264",
+          "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
+          "profile": "High",
+          "codec_type": "video",
+          "codec_tag_string": "avc1",
+          "codec_tag": "0x31637661",
+          "mime_codec_string": "avc1.640028",
+          "width": 1920,
+          "height": 1080,
+          "coded_width": 1920,
+          "coded_height": 1088,
+          "has_b_frames": 0,
+          "pix_fmt": "yuv420p",
+          "level": 40,
+          "chroma_location": "left",
+          "field_order": "progressive",
+          "refs": 3,
+          "is_avc": "true",
+          "nal_length_size": "4",
+          "id": "0x1",
+          "r_frame_rate": "30/1",
+          "avg_frame_rate": "26970/901",
+          "time_base": "1/15360",
+          "start_pts": 0,
+          "start_time": "0.000000",
+          "duration_ts": 461312,
+          "duration": "30.033333",
+          "bit_rate": "1202689",
+          "bits_per_raw_sample": "8",
+          "nb_frames": "899",
+          "nb_read_frames": "899",
+          "extradata_size": 47,
+          "disposition": {
+            "default": 1,
+            "dub": 0,
+            "original": 0,
+            "comment": 0,
+            "lyrics": 0,
+            "karaoke": 0,
+            "forced": 0,
+            "hearing_impaired": 0,
+            "visual_impaired": 0,
+            "clean_effects": 0,
+            "attached_pic": 0,
+            "timed_thumbnails": 0,
+            "non_diegetic": 0,
+            "captions": 0,
+            "descriptions": 0,
+            "metadata": 0,
+            "dependent": 0,
+            "still_image": 0,
+            "multilayer": 0
+          },
+          "tags": {
+            "language": "und",
+            "handler_name": "VideoHandler"
+          }
+        }
+      ],
+      "format": {
+        "filename": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen-export-21f02e96.mp4",
+        "nb_streams": 1,
+        "nb_programs": 0,
+        "nb_stream_groups": 0,
+        "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
+        "format_long_name": "QuickTime / MOV",
+        "start_time": "0.000000",
+        "duration": "30.033333",
+        "size": "4519737",
+        "bit_rate": "1203925",
+        "probe_score": 100,
+        "tags": {
+          "major_brand": "isom",
+          "minor_version": "512",
+          "compatible_brands": "isomiso2avc1mp41",
+          "encoder": "Lavf62.12.101"
+        }
+      }
+    }
+  },
+  "reduction_percent": 58.595774599503024,
+  "settings": {
+    "codec": "libx264",
+    "quality": 24,
+    "preset": "medium",
+    "width": 0,
+    "fps": 0,
+    "audio_bitrate": 128000,
+    "target_mb": 0
+  },
+  "frame": {
+    "zero_based_index": 300,
+    "original_timestamp": 10.0,
+    "compressed_timestamp": 10.0
+  },
+  "comparison": {
+    "size": [
+      1920,
+      1080
+    ],
+    "split_x": 960,
+    "scaling": false
+  }
+}

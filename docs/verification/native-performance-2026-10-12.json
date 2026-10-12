@@ -1,0 +1,991 @@
+{
+  "date": "2026-10-12",
+  "host": "Arch Linux x86_64, Hyprland 0.56.2, xdg-desktop-portal-hyprland 1.4.1, PipeWire 1.6.8, Qt 6.12",
+  "encoder": "libx264",
+  "phone_fixture": "synthetic 640x360, not a physical phone",
+  "native_stages": [
+    {
+      "run": "native-final-30",
+      "name": "record30",
+      "permission_wait_seconds": 26.964162453994504,
+      "elapsed_seconds": 30.002353017000132,
+      "capture": {
+        "callbacks": 899,
+        "accepted": 899,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 899,
+          "p50_ms": 1.2796349983545952,
+          "p95_ms": 2.52305599860847,
+          "max_ms": 3.81511400337331,
+          "p99_ms": 2.8902949998155236
+        },
+        "numpy_copy_ms": {
+          "count": 899,
+          "p50_ms": 0.7737599953543395,
+          "p95_ms": 1.841404002334457,
+          "max_ms": 2.5543469964759424,
+          "p99_ms": 2.2104519957792945
+        },
+        "callback_ms": {
+          "count": 899,
+          "p50_ms": 2.204062999226153,
+          "p95_ms": 4.179417002887931,
+          "max_ms": 5.838885001139715,
+          "p99_ms": 4.822810995392501
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 29.93443867545,
+        "accepted_fps": 29.93443867545,
+        "capture_fps": 29.93443867545,
+        "source_timestamp_intervals_ms": {
+          "count": 898,
+          "p50_ms": 33.14999999565771,
+          "p95_ms": 34.205000003566965,
+          "p99_ms": 34.405999998853076,
+          "max_ms": 67.17199999548029
+        },
+        "video_sink_intervals_ms": {
+          "count": 898,
+          "p50_ms": 33.168932000990026,
+          "p95_ms": 34.224971997900866,
+          "p99_ms": 34.38898700551363,
+          "max_ms": 67.1957559970906
+        },
+        "accepted_intervals_ms": {
+          "count": 898,
+          "p50_ms": 33.168932000990026,
+          "p95_ms": 34.224971997900866,
+          "p99_ms": 34.38898700551363,
+          "max_ms": 67.1957559970906
+        },
+        "first_frame_delay_ms": 24.81674400041811
+      },
+      "cpu_mean_percent": 78.88666666666667,
+      "peak_rss_bytes": 387272704,
+      "preview_fps": 0.0,
+      "files": [
+        {
+          "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen.mkv",
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "codec": "h264",
+            "fps": 30.0,
+            "duration": 30.033333333333335,
+            "audio": false,
+            "size": 10916125,
+            "decoded_frames": 899,
+            "measured_fps": 29.933407325194228,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 899,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 29.933333333333334,
+            "unique_transition_fps": 29.933333333333334,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000125,
+              "p95": 34.00000000000247,
+              "p99": 34.00000000000247
+            },
+            "max_gap_ms": 67.00000000000017,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 2
+          },
+          "container_bitrate": 2907768
+        }
+      ],
+      "stage_timings": {
+        "capture_to_encoder_ms": {
+          "count": 899,
+          "p50_ms": 3.5104310081806034,
+          "p95_ms": 4.7153340055956505,
+          "p99_ms": 5.4381620066124015,
+          "max_ms": 23.045045003527775
+        },
+        "conversion_ms": {
+          "count": 899,
+          "p50_ms": 0.0056680000852793455,
+          "p95_ms": 0.02016899816226214,
+          "p99_ms": 0.028697999368887395,
+          "max_ms": 0.0712020046194084
+        },
+        "encode_ms": {
+          "count": 899,
+          "p50_ms": 8.3733610008494,
+          "p95_ms": 10.888771001191344,
+          "p99_ms": 12.082970002666116,
+          "max_ms": 13.44440400134772
+        },
+        "mux_ms": {
+          "count": 899,
+          "p50_ms": 0.0271580065600574,
+          "p95_ms": 0.076403004641179,
+          "p99_ms": 0.31989200215321034,
+          "max_ms": 0.8640509986435063
+        },
+        "source_interval_ms": {
+          "count": 898,
+          "p50_ms": 33.14999999565771,
+          "p95_ms": 34.205000003566965,
+          "p99_ms": 34.405999998853076,
+          "max_ms": 67.17199999548029
+        },
+        "output_interval_ms": {
+          "count": 898,
+          "p50_ms": 33.333333333333336,
+          "p95_ms": 33.333333333333336,
+          "p99_ms": 33.333333333333336,
+          "max_ms": 66.66666666666667
+        }
+      },
+      "encoder_telemetry": [
+        {
+          "video_calls": 899,
+          "packets": 899,
+          "conversion_ms": 1926.6191499991692,
+          "encode_ms": 7709.498155054462,
+          "mux_ms": 37.51058404304786,
+          "disk_flush_ms": 18.68877800006885,
+          "source_fps": null
+        }
+      ],
+      "recording_queue_drops": {
+        "screen": 0,
+        "phone": 0
+      },
+      "compression_statuses": [
+        "complete"
+      ]
+    },
+    {
+      "run": "native-final-30",
+      "name": "preview30",
+      "permission_wait_seconds": 26.964162453994504,
+      "elapsed_seconds": 30.001477081001212,
+      "capture": {
+        "callbacks": 880,
+        "accepted": 880,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 880,
+          "p50_ms": 1.243186001374852,
+          "p95_ms": 2.347544999793172,
+          "max_ms": 2.948380002635531,
+          "p99_ms": 2.6586210005916655
+        },
+        "numpy_copy_ms": {
+          "count": 880,
+          "p50_ms": 0.6475379996118136,
+          "p95_ms": 1.4649739969172515,
+          "max_ms": 2.153763998649083,
+          "p99_ms": 1.7494869971415028
+        },
+        "callback_ms": {
+          "count": 880,
+          "p50_ms": 1.9918629986932501,
+          "p95_ms": 3.5969620003015734,
+          "max_ms": 4.734685004223138,
+          "p99_ms": 4.159857002377976
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 29.30397315673337,
+        "accepted_fps": 29.30397315673337,
+        "capture_fps": 29.30397315673337,
+        "source_timestamp_intervals_ms": {
+          "count": 879,
+          "p50_ms": 33.14900000259513,
+          "p95_ms": 34.25200000492623,
+          "p99_ms": 66.29500000417465,
+          "max_ms": 67.42300000041723
+        },
+        "video_sink_intervals_ms": {
+          "count": 879,
+          "p50_ms": 33.17220600001747,
+          "p95_ms": 34.395861002849415,
+          "p99_ms": 66.34496899641817,
+          "max_ms": 67.4278160004178
+        },
+        "accepted_intervals_ms": {
+          "count": 879,
+          "p50_ms": 33.17220600001747,
+          "p95_ms": 34.395861002849415,
+          "p99_ms": 66.34496899641817,
+          "max_ms": 67.4278160004178
+        },
+        "first_frame_delay_ms": 40.381885002716444
+      },
+      "cpu_mean_percent": 58.086666666666666,
+      "peak_rss_bytes": 450809856,
+      "preview_fps": 29.131898994182215,
+      "files": []
+    },
+    {
+      "run": "native-final-30",
+      "name": "preview-record30",
+      "permission_wait_seconds": 26.964162453994504,
+      "elapsed_seconds": 30.001708309995593,
+      "capture": {
+        "callbacks": 877,
+        "accepted": 877,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 877,
+          "p50_ms": 1.1529509938554838,
+          "p95_ms": 1.8188269968959503,
+          "max_ms": 2.5353919991175644,
+          "p99_ms": 2.2695820007356815
+        },
+        "numpy_copy_ms": {
+          "count": 877,
+          "p50_ms": 0.6250799997360446,
+          "p95_ms": 1.0211640037596226,
+          "max_ms": 3.033089997188654,
+          "p99_ms": 1.3674439978785813
+        },
+        "callback_ms": {
+          "count": 877,
+          "p50_ms": 1.8582349948701449,
+          "p95_ms": 2.7961989981122315,
+          "max_ms": 4.5881210025982,
+          "p99_ms": 3.299946001789067
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 29.200363417989237,
+        "accepted_fps": 29.200363417989237,
+        "capture_fps": 29.200363417989237,
+        "source_timestamp_intervals_ms": {
+          "count": 876,
+          "p50_ms": 33.14600000157952,
+          "p95_ms": 34.27899999951478,
+          "p99_ms": 66.39200000063283,
+          "max_ms": 67.45299999602139
+        },
+        "video_sink_intervals_ms": {
+          "count": 876,
+          "p50_ms": 33.17599699948914,
+          "p95_ms": 34.31888200429967,
+          "p99_ms": 66.32598199939821,
+          "max_ms": 67.46921400190331
+        },
+        "accepted_intervals_ms": {
+          "count": 876,
+          "p50_ms": 33.17599699948914,
+          "p95_ms": 34.31888200429967,
+          "p99_ms": 66.32598199939821,
+          "max_ms": 67.46921400190331
+        },
+        "first_frame_delay_ms": 9.32556799671147
+      },
+      "cpu_mean_percent": 122.13333333333334,
+      "peak_rss_bytes": 472686592,
+      "preview_fps": 29.065011598338817,
+      "files": [
+        {
+          "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123132-2fd62c-screen.mkv",
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "codec": "h264",
+            "fps": 30.0,
+            "duration": 30.033333333333335,
+            "audio": false,
+            "size": 25270834,
+            "decoded_frames": 877,
+            "measured_fps": 29.20088790233074,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 877,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 29.2,
+            "unique_transition_fps": 29.2,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000125,
+              "p95": 34.00000000000247,
+              "p99": 67.00000000000017
+            },
+            "max_gap_ms": 67.00000000000017,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 24
+          },
+          "container_bitrate": 6731484
+        }
+      ],
+      "stage_timings": {
+        "capture_to_encoder_ms": {
+          "count": 877,
+          "p50_ms": 3.553714996087365,
+          "p95_ms": 6.909162999363616,
+          "p99_ms": 7.925629004603252,
+          "max_ms": 16.553721005038824
+        },
+        "conversion_ms": {
+          "count": 877,
+          "p50_ms": 0.006121998012531549,
+          "p95_ms": 0.011989002814516425,
+          "p99_ms": 0.01925000105984509,
+          "max_ms": 0.14451299648499116
+        },
+        "encode_ms": {
+          "count": 877,
+          "p50_ms": 10.947775001113769,
+          "p95_ms": 15.702141005021986,
+          "p99_ms": 18.93757699872367,
+          "max_ms": 23.20686500024749
+        },
+        "mux_ms": {
+          "count": 877,
+          "p50_ms": 0.03375599771970883,
+          "p95_ms": 0.13179599773138762,
+          "p99_ms": 1.1876589996973053,
+          "max_ms": 11.080079995736014
+        },
+        "source_interval_ms": {
+          "count": 876,
+          "p50_ms": 33.14600000157952,
+          "p95_ms": 34.27899999951478,
+          "p99_ms": 66.39200000063283,
+          "max_ms": 67.45299999602139
+        },
+        "output_interval_ms": {
+          "count": 876,
+          "p50_ms": 33.333333333333336,
+          "p95_ms": 33.333333333333336,
+          "p99_ms": 66.66666666666667,
+          "max_ms": 66.66666666666667
+        }
+      },
+      "encoder_telemetry": [
+        {
+          "video_calls": 877,
+          "packets": 877,
+          "conversion_ms": 1750.1500868675066,
+          "encode_ms": 10027.98934407474,
+          "mux_ms": 88.65083807177143,
+          "disk_flush_ms": 13.7323219969403,
+          "source_fps": null
+        }
+      ],
+      "recording_queue_drops": {
+        "screen": 0,
+        "phone": 0
+      },
+      "compression_statuses": [
+        "complete",
+        "complete"
+      ]
+    },
+    {
+      "run": "native-final-30",
+      "name": "pip30",
+      "permission_wait_seconds": 26.964162453994504,
+      "elapsed_seconds": 30.001514068004326,
+      "capture": {
+        "callbacks": 842,
+        "accepted": 842,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 842,
+          "p50_ms": 1.2579639951582067,
+          "p95_ms": 1.9489159967633896,
+          "max_ms": 2.7470949935377575,
+          "p99_ms": 2.541607005696278
+        },
+        "numpy_copy_ms": {
+          "count": 842,
+          "p50_ms": 0.6287549986154772,
+          "p95_ms": 1.2306979988352396,
+          "max_ms": 2.406763996987138,
+          "p99_ms": 1.71587300428655
+        },
+        "callback_ms": {
+          "count": 842,
+          "p50_ms": 1.9610819945228286,
+          "p95_ms": 2.991403001942672,
+          "max_ms": 4.5691229970543645,
+          "p99_ms": 4.052089003380388
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 28.033823215049626,
+        "accepted_fps": 28.033823215049626,
+        "capture_fps": 28.033823215049626,
+        "source_timestamp_intervals_ms": {
+          "count": 841,
+          "p50_ms": 33.16899999481393,
+          "p95_ms": 66.23199999739882,
+          "p99_ms": 67.24099999701139,
+          "max_ms": 67.45300000329735
+        },
+        "video_sink_intervals_ms": {
+          "count": 841,
+          "p50_ms": 33.17678700113902,
+          "p95_ms": 66.23597599536879,
+          "p99_ms": 67.25348400505027,
+          "max_ms": 67.49151900294237
+        },
+        "accepted_intervals_ms": {
+          "count": 841,
+          "p50_ms": 33.17678700113902,
+          "p95_ms": 66.23597599536879,
+          "p99_ms": 67.25348400505027,
+          "max_ms": 67.49151900294237
+        },
+        "first_frame_delay_ms": 24.87617500446504
+      },
+      "cpu_mean_percent": 100.74666666666667,
+      "peak_rss_bytes": 493293568,
+      "preview_fps": 0.0,
+      "files": [
+        {
+          "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123240-f133c6-both.mkv",
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "codec": "h264",
+            "fps": 30.0,
+            "duration": 30.033333333333335,
+            "audio": false,
+            "size": 15474458,
+            "decoded_frames": 842,
+            "measured_fps": 28.03551609322974,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 842,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 28.033333333333335,
+            "unique_transition_fps": 28.033333333333335,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000125,
+              "p95": 66.00000000000028,
+              "p99": 67.00000000000017
+            },
+            "max_gap_ms": 67.00000000000017,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 59
+          },
+          "container_bitrate": 4121987
+        }
+      ],
+      "stage_timings": {
+        "capture_to_encoder_ms": {
+          "count": 842,
+          "p50_ms": 3.498692996799946,
+          "p95_ms": 4.201988005661406,
+          "p99_ms": 5.007446998206433,
+          "max_ms": 45.734863000689074
+        },
+        "conversion_ms": {
+          "count": 842,
+          "p50_ms": 8.787791004579049,
+          "p95_ms": 10.887229000218213,
+          "p99_ms": 11.610342000494711,
+          "max_ms": 13.196097002946772
+        },
+        "encode_ms": {
+          "count": 842,
+          "p50_ms": 8.541455004888121,
+          "p95_ms": 11.298871999315452,
+          "p99_ms": 12.84795299579855,
+          "max_ms": 19.184250006219372
+        },
+        "mux_ms": {
+          "count": 842,
+          "p50_ms": 0.027843998395837843,
+          "p95_ms": 0.2595629994175397,
+          "p99_ms": 0.6234459942788817,
+          "max_ms": 1.2183599974378012
+        },
+        "source_interval_ms": {
+          "count": 841,
+          "p50_ms": 33.16899999481393,
+          "p95_ms": 66.23199999739882,
+          "p99_ms": 67.24099999701139,
+          "max_ms": 67.45300000329735
+        },
+        "output_interval_ms": {
+          "count": 841,
+          "p50_ms": 33.333333333333336,
+          "p95_ms": 66.66666666666667,
+          "p99_ms": 66.66666666666667,
+          "max_ms": 66.66666666666667
+        }
+      },
+      "encoder_telemetry": [
+        {
+          "video_calls": 842,
+          "packets": 842,
+          "conversion_ms": 2320.0121369809494,
+          "encode_ms": 7413.185509183677,
+          "mux_ms": 43.97507401154144,
+          "disk_flush_ms": 17.522589005238842,
+          "source_fps": null
+        }
+      ],
+      "recording_queue_drops": {
+        "screen": 0,
+        "phone": 0
+      },
+      "compression_statuses": [
+        "complete",
+        "complete",
+        "complete"
+      ]
+    },
+    {
+      "run": "native-final-30",
+      "name": "separate30",
+      "permission_wait_seconds": 26.964162453994504,
+      "elapsed_seconds": 30.007144153001718,
+      "capture": {
+        "callbacks": 874,
+        "accepted": 874,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 874,
+          "p50_ms": 1.0923090012511238,
+          "p95_ms": 1.7197800043504685,
+          "max_ms": 3.2364770013373345,
+          "p99_ms": 2.079678997688461
+        },
+        "numpy_copy_ms": {
+          "count": 874,
+          "p50_ms": 0.6781300035072491,
+          "p95_ms": 1.2509259977377951,
+          "max_ms": 2.3519429960288107,
+          "p99_ms": 1.6582739990553819
+        },
+        "callback_ms": {
+          "count": 874,
+          "p50_ms": 1.8366349977441132,
+          "p95_ms": 2.8514869991340674,
+          "max_ms": 4.776338995725382,
+          "p99_ms": 3.448626994213555
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 29.100593491079287,
+        "accepted_fps": 29.100593491079287,
+        "capture_fps": 29.100593491079287,
+        "source_timestamp_intervals_ms": {
+          "count": 873,
+          "p50_ms": 33.133000004454516,
+          "p95_ms": 34.335999996983446,
+          "p99_ms": 67.16199999937089,
+          "max_ms": 67.55400000110967
+        },
+        "video_sink_intervals_ms": {
+          "count": 873,
+          "p50_ms": 33.141488005639985,
+          "p95_ms": 34.34359300445067,
+          "p99_ms": 67.15792800241616,
+          "max_ms": 67.5386430011713
+        },
+        "accepted_intervals_ms": {
+          "count": 873,
+          "p50_ms": 33.141488005639985,
+          "p95_ms": 34.34359300445067,
+          "p99_ms": 67.15792800241616,
+          "max_ms": 67.5386430011713
+        },
+        "first_frame_delay_ms": 22.425295996072236
+      },
+      "cpu_mean_percent": 84.43333333333334,
+      "peak_rss_bytes": 519536640,
+      "preview_fps": 0.0,
+      "files": [
+        {
+          "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123349-1a1b81-phone.mkv",
+          "metadata": {
+            "width": 640,
+            "height": 360,
+            "codec": "h264",
+            "fps": 30.0,
+            "duration": 30.033333333333335,
+            "audio": false,
+            "size": 984321,
+            "decoded_frames": 874,
+            "measured_fps": 29.100998890122085,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 874,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 29.1,
+            "unique_transition_fps": 29.1,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000125,
+              "p95": 34.00000000000247,
+              "p99": 67.00000000000017
+            },
+            "max_gap_ms": 67.00000000000017,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 27
+          },
+          "container_bitrate": 262197
+        },
+        {
+          "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123349-1a1b81-screen.mkv",
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "codec": "h264",
+            "fps": 30.0,
+            "duration": 30.033333333333335,
+            "audio": false,
+            "size": 14982553,
+            "decoded_frames": 874,
+            "measured_fps": 29.100998890122085,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 874,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 29.1,
+            "unique_transition_fps": 29.1,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000125,
+              "p95": 34.00000000000247,
+              "p99": 67.00000000000017
+            },
+            "max_gap_ms": 67.00000000000017,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 27
+          },
+          "container_bitrate": 3990957
+        }
+      ],
+      "stage_timings": {
+        "capture_to_encoder_ms": {
+          "count": 874,
+          "p50_ms": 3.4087909953086637,
+          "p95_ms": 4.24408599792514,
+          "p99_ms": 4.802265997568611,
+          "max_ms": 38.9322010014439
+        },
+        "conversion_ms": {
+          "count": 1748,
+          "p50_ms": 0.03603100049076602,
+          "p95_ms": 13.558897997427266,
+          "p99_ms": 14.87739499862073,
+          "max_ms": 51.75561900250614
+        },
+        "encode_ms": {
+          "count": 1748,
+          "p50_ms": 3.0053680020500906,
+          "p95_ms": 10.721351995016448,
+          "p99_ms": 11.945002996071707,
+          "max_ms": 14.979307001340203
+        },
+        "mux_ms": {
+          "count": 1748,
+          "p50_ms": 0.02063399733742699,
+          "p95_ms": 0.048524001613259315,
+          "p99_ms": 0.4743790050270036,
+          "max_ms": 10.121466002601665
+        },
+        "source_interval_ms": {
+          "count": 873,
+          "p50_ms": 33.133000004454516,
+          "p95_ms": 34.335999996983446,
+          "p99_ms": 67.16199999937089,
+          "max_ms": 67.55400000110967
+        },
+        "output_interval_ms": {
+          "count": 873,
+          "p50_ms": 33.333333333333336,
+          "p95_ms": 33.333333333333336,
+          "p99_ms": 66.66666666666667,
+          "max_ms": 66.66666666666667
+        }
+      },
+      "encoder_telemetry": [
+        {
+          "video_calls": 874,
+          "packets": 874,
+          "conversion_ms": 2330.1579759572633,
+          "encode_ms": 7812.354347013752,
+          "mux_ms": 48.232940112939104,
+          "disk_flush_ms": 19.623398999101482,
+          "source_fps": null
+        },
+        {
+          "video_calls": 874,
+          "packets": 874,
+          "conversion_ms": 252.212354040239,
+          "encode_ms": 1206.924109843385,
+          "mux_ms": 11.633423957391642,
+          "disk_flush_ms": 4.0398019991698675,
+          "source_fps": null
+        }
+      ],
+      "recording_queue_drops": {
+        "screen": 0,
+        "phone": 0
+      },
+      "compression_statuses": [
+        "complete",
+        "complete",
+        "complete",
+        "complete",
+        "complete"
+      ]
+    },
+    {
+      "run": "native-final-60",
+      "name": "record60",
+      "permission_wait_seconds": 80.37466267299897,
+      "elapsed_seconds": 30.003455429003225,
+      "capture": {
+        "callbacks": 980,
+        "accepted": 980,
+        "throttled": 0,
+        "invalid": 0,
+        "qimage_conversion_ms": {
+          "count": 980,
+          "p50_ms": 1.0599540037219413,
+          "p95_ms": 1.8743540058494546,
+          "max_ms": 2.7760919983848,
+          "p99_ms": 2.144374004274141
+        },
+        "numpy_copy_ms": {
+          "count": 980,
+          "p50_ms": 0.6510149978566915,
+          "p95_ms": 1.4676840000902303,
+          "max_ms": 3.6825239949394017,
+          "p99_ms": 2.3891269956948236
+        },
+        "callback_ms": {
+          "count": 980,
+          "p50_ms": 1.7546250019222498,
+          "p95_ms": 3.2645100000081584,
+          "max_ms": 5.165980001038406,
+          "p99_ms": 4.378912999527529
+        },
+        "pixel_format": "PixelFormat.Format_BGRA8888",
+        "video_sink_fps": 32.634174195254275,
+        "accepted_fps": 32.634174195254275,
+        "capture_fps": 32.634174195254275,
+        "source_timestamp_intervals_ms": {
+          "count": 979,
+          "p50_ms": 33.22399999888148,
+          "p95_ms": 49.62800000066636,
+          "p99_ms": 50.570999999763444,
+          "max_ms": 50.97199999727309
+        },
+        "video_sink_intervals_ms": {
+          "count": 979,
+          "p50_ms": 33.22007500537438,
+          "p95_ms": 49.622190002992284,
+          "p99_ms": 50.57414900511503,
+          "max_ms": 50.98786699818447
+        },
+        "accepted_intervals_ms": {
+          "count": 979,
+          "p50_ms": 33.22007500537438,
+          "p95_ms": 49.622190002992284,
+          "p99_ms": 50.57414900511503,
+          "max_ms": 50.98786699818447
+        },
+        "first_frame_delay_ms": 29.267346995766275
+      },
+      "cpu_mean_percent": 80.42333333333333,
+      "peak_rss_bytes": 357728256,
+      "preview_fps": 0.0,
+      "files": [
+        {
+          "path": "artifacts/native-final-60/recordings/FrameLink-20261012-123639-a99a0e-screen.mkv",
+          "metadata": {
+            "width": 1920,
+            "height": 1080,
+            "codec": "h264",
+            "fps": 60.0,
+            "duration": 30.016666666666666,
+            "audio": false,
+            "size": 9703538,
+            "decoded_frames": 980,
+            "measured_fps": 32.648528595224874,
+            "stream_starts": {
+              "0": 0.0
+            }
+          },
+          "pacing": {
+            "decoded_frames": 980,
+            "presentation_span_seconds": 30.0,
+            "timestamp_fps": 32.63333333333333,
+            "unique_transition_fps": 32.63333333333333,
+            "consecutive_identical_luma_frames": 0,
+            "intervals_ms": {
+              "p50": 33.00000000000036,
+              "p95": 49.99999999999999,
+              "p99": 50.00000000000071
+            },
+            "max_gap_ms": 50.00000000000071,
+            "nonincreasing_pts": 0,
+            "gaps_over_50ms": 0
+          },
+          "container_bitrate": 2586144
+        }
+      ],
+      "stage_timings": {
+        "capture_to_encoder_ms": {
+          "count": 980,
+          "p50_ms": 3.0569940063287504,
+          "p95_ms": 3.912486004992388,
+          "p99_ms": 5.660642003931571,
+          "max_ms": 31.201957004668657
+        },
+        "conversion_ms": {
+          "count": 980,
+          "p50_ms": 0.008964001608546823,
+          "p95_ms": 0.03737000224646181,
+          "p99_ms": 0.05793599848402664,
+          "max_ms": 0.13438799942377955
+        },
+        "encode_ms": {
+          "count": 980,
+          "p50_ms": 7.748263000394218,
+          "p95_ms": 11.261491003097035,
+          "p99_ms": 12.322228998527862,
+          "max_ms": 14.157388999592513
+        },
+        "mux_ms": {
+          "count": 980,
+          "p50_ms": 0.023151005734689534,
+          "p95_ms": 0.06563000351889059,
+          "p99_ms": 0.4105120024178177,
+          "max_ms": 1.999375999730546
+        },
+        "source_interval_ms": {
+          "count": 979,
+          "p50_ms": 33.22399999888148,
+          "p95_ms": 49.62800000066636,
+          "p99_ms": 50.570999999763444,
+          "max_ms": 50.97199999727309
+        },
+        "output_interval_ms": {
+          "count": 979,
+          "p50_ms": 33.333333333333336,
+          "p95_ms": 50.0,
+          "p99_ms": 50.0,
+          "max_ms": 50.0
+        }
+      },
+      "encoder_telemetry": [
+        {
+          "video_calls": 980,
+          "packets": 980,
+          "conversion_ms": 3142.2182180249365,
+          "encode_ms": 7835.834470999544,
+          "mux_ms": 45.79068408929743,
+          "disk_flush_ms": 8.279107001726516,
+          "source_fps": null
+        }
+      ],
+      "recording_queue_drops": {
+        "screen": 0,
+        "phone": 0
+      }
+    }
+  ],
+  "automated_tests": 127,
+  "release_ready": false,
+  "limitations": [
+    "No physical Android/iPhone verification",
+    "Windows not executed for current changes",
+    "No sustained native 60 FPS",
+    "Preview and PiP miss some 30 FPS intervals",
+    "GPU usage unavailable",
+    "Exact internal cause of low portal delivery not isolated"
+  ],
+  "browser": {
+    "fixture": "Chromium synthetic camera and microphone; not a physical phone",
+    "verified": [
+      "secure context",
+      "one-use pairing",
+      "video/audio receive",
+      "desktop recording indicator",
+      "phone-only recording",
+      "pause/resume",
+      "camera reacquisition",
+      "reconnect",
+      "desktop disconnect stops camera",
+      "cancelled camera acquisition closes late tracks",
+      "fresh QR in an existing browser tab"
+    ],
+    "source": {
+      "frameRate": 30,
+      "height": 1080,
+      "width": 1920
+    },
+    "received": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.114859941024598,
+      "receiver_bitrate": 6528088,
+      "receiver_packets_lost": 0
+    },
+    "saved": {
+      "width": 1920,
+      "height": 1080,
+      "codec": "h264",
+      "fps": 30.0,
+      "duration": 2.176333333333333,
+      "audio": true,
+      "size": 4140203,
+      "decoded_frames": 65,
+      "measured_fps": 29.866748353499776,
+      "stream_starts": {
+        "0": 0.0,
+        "1": 0.0
+      }
+    },
+    "tls": {
+      "url": "https://127.0.0.1:18443",
+      "tls": "TLSv1.3",
+      "root_sha256": "04:9E:4D:00:24:04:02:70:57:64:AB:AC:0D:2E:85:EC:67:0D:43:37:F4:B3:2D:9A:D0:B4:B5:28:7E:0E:D4:80",
+      "leaf_sha256": "8d:c5:44:7c:38:0b:52:b8:f0:a8:e3:d8:6b:93:73:1b:28:53:5c:64:ba:64:03:bc:08:cc:a7:0a:7e:9f:0d:19",
+      "san": [
+        "127.0.0.1",
+        "localhost"
+      ],
+      "server_auth": true,
+      "valid_until": "2027-01-10T09:41:34+00:00",
+      "verified": true,
+      "phone_trust": "Not observable from the desktop; verify manually on iPhone"
+    },
+    "page_errors": []
+  },
+  "x11": {
+    "environment": "Xvfb :98",
+    "width": 1280,
+    "height": 720,
+    "codec": "h264",
+    "frames": 154,
+    "duration": 5.133333333333333,
+    "measured_fps": 30.0,
+    "state": "Completed",
+    "error": ""
+  }
+}

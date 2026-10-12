@@ -1,0 +1,76 @@
+{
+  "fixture": "Chromium synthetic moving camera; not a physical phone or Wi-Fi benchmark",
+  "before": {
+    "source": {
+      "frameRate": 30,
+      "height": 1080,
+      "width": 1920
+    },
+    "received": {
+      "width": 640,
+      "height": 360,
+      "fps": 29.98589613370236
+    },
+    "saved": {
+      "width": 640,
+      "height": 360,
+      "fps": 30.0,
+      "measured_fps": 29.75206611570248,
+      "duration": 2.2183333333333333,
+      "size": 356108,
+      "audio": true
+    },
+    "container_bitrate": 1282694,
+    "sender_target_bitrate": 413954,
+    "sender_measurements": null,
+    "recorder_metrics": null,
+    "recording_elapsed": null,
+    "tls_verified": true
+  },
+  "after": {
+    "source": {
+      "frameRate": 30,
+      "height": 1080,
+      "width": 1920
+    },
+    "received": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.397469684803188
+    },
+    "saved": {
+      "width": 1920,
+      "height": 1080,
+      "fps": 30.0,
+      "measured_fps": 28.917774207682196,
+      "duration": 2.2823333333333333,
+      "size": 4408965,
+      "audio": true
+    },
+    "container_bitrate": 15422702,
+    "sender_target_bitrate": 7464000,
+    "sender_measurements": {
+      "type": "quality",
+      "capture_width": 1920,
+      "capture_height": 1080,
+      "capture_fps": 30,
+      "sent_width": 1920,
+      "sent_height": 1080,
+      "sent_fps": 29.99058401097702,
+      "bitrate": 7419122.656314448,
+      "target_bitrate": 7464960,
+      "rtt": 0.00116,
+      "limitation": "none",
+      "parameter_error": ""
+    },
+    "recorder_metrics": {
+      "encoded": 66,
+      "skipped": 2,
+      "latency_ms": 28.907195999636315,
+      "bytes": 2008210,
+      "encoder": "libx264"
+    },
+    "recording_elapsed": 2.2506166249986563,
+    "tls_verified": true
+  }
+}

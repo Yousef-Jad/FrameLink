@@ -123,9 +123,7 @@ Expected: `All checks passed!`
 def test_main_window_has_compact_four_destination_shell(qapp, window):
     assert window.rail.width() == 72
     assert window.pages.count() == 4
-    assert [window.rail.button(i).toolTip() for i in range(4)] == [
-        "Studio", "Library", "Devices", "Settings"
-    ]
+    assert [window.rail.button(i).toolTip() for i in range(4)] == ["Studio", "Library", "Devices", "Settings"]
 
 
 def test_mode_selector_changes_existing_recording_mode(qapp, window):
@@ -355,6 +353,7 @@ Expected: PASS.
 ```python
 def test_screenshot_tool_has_documented_page_targets():
     from tools.ui_screenshots import PAGE_NAMES
+
     assert PAGE_NAMES == ("studio", "devices", "library", "settings")
 ```
 

@@ -1,0 +1,114 @@
+{
+  "date": "2026-10-12",
+  "readmes": [
+    {
+      "file": "README.md",
+      "render": {
+        "images": [
+          {
+            "ok": true,
+            "width": 1280,
+            "height": 900
+          },
+          {
+            "ok": true,
+            "width": 1920,
+            "height": 1080
+          }
+        ],
+        "headings": 8,
+        "lists": 1,
+        "overflow": false,
+        "rtl": []
+      }
+    },
+    {
+      "file": "docs/i18n/README.ar.md",
+      "render": {
+        "images": [
+          {
+            "ok": true,
+            "width": 1280,
+            "height": 900
+          },
+          {
+            "ok": true,
+            "width": 1920,
+            "height": 1080
+          }
+        ],
+        "headings": 8,
+        "lists": 1,
+        "overflow": false,
+        "rtl": [
+          "rtl",
+          "rtl"
+        ]
+      }
+    },
+    {
+      "file": "docs/i18n/README.ru.md",
+      "render": {
+        "images": [
+          {
+            "ok": true,
+            "width": 1280,
+            "height": 900
+          },
+          {
+            "ok": true,
+            "width": 1920,
+            "height": 1080
+          }
+        ],
+        "headings": 8,
+        "lists": 1,
+        "overflow": false,
+        "rtl": []
+      }
+    },
+    {
+      "file": "docs/i18n/README.zh-CN.md",
+      "render": {
+        "images": [
+          {
+            "ok": true,
+            "width": 1280,
+            "height": 900
+          },
+          {
+            "ok": true,
+            "width": 1920,
+            "height": 1080
+          }
+        ],
+        "headings": 8,
+        "lists": 1,
+        "overflow": false,
+        "rtl": []
+      }
+    }
+  ],
+  "checks": {
+    "relative_link_files": true,
+    "language_selectors": true,
+    "github_gfm_rendering": true,
+    "arabic_rtl": true,
+    "browser_images_loaded": true,
+    "no_horizontal_overflow": true,
+    "comparison_native_pixels_verified": true,
+    "complete_ffmpeg_decode_both_files": true,
+    "pairing_qr_reserved_invalid_url": true
+  },
+  "assets": {
+    "phone_pairing": [
+      1280,
+      900
+    ],
+    "compression_comparison": [
+      1920,
+      1080
+    ]
+  },
+  "scope": "Documentation and assets only; no application behavior changes."
+}

@@ -1,42 +1,70 @@
 {
   "windows_package": {
-    "verified": true,
-    "evidence": "FrameLink Windows x64 portable package built, verified runtime smoke test, and packaged as FrameLink-Windows-x64.zip."
+    "verified": false,
+    "evidence": "Current fixes have not been packaged or run on Windows; earlier CI results do not verify this revision."
   },
   "linux_package": {
-    "verified": true,
-    "evidence": "FrameLink Linux x86_64 portable tarball and AppImage built and verified on Linux (Arch / Ubuntu compatible)."
+    "verified": false,
+    "evidence": "Current fixes pass source tests; distribution packages have not been rebuilt or verified for this revision."
   },
   "windows_capture": {
-    "verified": true,
-    "evidence": "Windows Graphics Capture (WGC) and DXGI desktop capture pipeline validated with frame delivery and encoding."
+    "verified": false,
+    "evidence": "Windows 10/11 Stop, recording and audio require verification on this revision."
   },
   "linux_x11_capture": {
     "verified": true,
-    "evidence": "Qt X11 capture verified in virtual Xvfb desktop environment and native displays."
+    "evidence": "Current MP4 source captured native Qt X11 under Xvfb: H.264 MP4 1280x720, 152 decoded frames over 5.067 seconds, 30.00 actual FPS, Completed without recorder error. FFprobe confirms MP4; output folder has no JPG or MKV. Evidence: artifacts/mp4-native-x11/. Physical X11 hardware unverified."
   },
   "linux_wayland_capture": {
-    "verified": true,
-    "evidence": "Arch Linux / Hyprland PipeWire and xdg-desktop-portal ScreenCast capture verified."
+    "verified": false,
+    "evidence": "Earlier native Hyprland benchmarks used MKV and missed sustained 60 FPS; see docs/PERFORMANCE.md. MP4 output changes pass native X11 and software-peer integration but have not been reverified through the Wayland portal. Gate remains closed."
   },
   "android_chrome": {
-    "verified": true,
-    "evidence": "Browser WebRTC camera streaming and certificate handshake verified for Android Chrome client."
+    "verified": false,
+    "evidence": "Physical Android camera and certificate installation remain unverified. Desktop Chromium with a synthetic camera is recorded separately."
   },
   "ios_safari": {
-    "verified": true,
-    "evidence": "Safari WebRTC camera transport and mobileconfig certificate profile verified."
+    "verified": false,
+    "evidence": "No iPhone available: profile installation, explicit full trust, warning-free Safari access, rotation and streaming must pass the manual checks in docs/CRITICAL_FIXES.md."
   },
   "offline_hotspot": {
-    "verified": true,
-    "evidence": "Local IPv4 private network discovery and offline peer connection without internet verified."
+    "verified": false,
+    "evidence": "Physical offline router/hotspot workflows not reverified on this revision."
   },
   "audio_sync": {
-    "verified": true,
-    "evidence": "WASAPI loopback, Pulse/PipeWire audio capture, and PTS timestamp alignment verified."
+    "verified": false,
+    "evidence": "Synthetic browser H.264/AAC streams decode with aligned starts and validated end times; physical-device lip sync and long-duration drift remain unverified."
   },
   "dependency_license_audit": {
+    "verified": false,
+    "evidence": "Distribution source and license obligations remain pending as documented in docs/DISTRIBUTION_AUDIT.md."
+  },
+  "recording_stop": {
     "verified": true,
-    "evidence": "License audit completed; third-party notices, license expressions, and package inventory verified for FrameLink distribution."
+    "evidence": "Actual Qt Stop clicks in Screen, Phone, Both PiP and Both separate; two consecutive sessions per mode and duplicate Stop; tests/test_recording_stop.py."
+  },
+  "recording_finalization": {
+    "verified": true,
+    "evidence": "Full media decoding, duration checks, atomic promotion and indexing precede Completed. Initialization cancellation, source loss and encoder failure retain originals; tests/test_recording_stop.py."
+  },
+  "compression_after_stop": {
+    "verified": true,
+    "evidence": "Automatic compression jobs finished after actual Qt Stop in every recording mode across repeated sessions; tests/test_recording_stop.py."
+  },
+  "camera_quality": {
+    "verified": true,
+    "evidence": "Same moving 1080p browser fixture before/after; received and saved resolution increased from 640x360 to 1920x1080. Local regression gate requires at least 24 received and decoded FPS. Evidence: docs/verification/critical-fixes/camera-comparison.json. Physical cameras unverified."
+  },
+  "preview_fill": {
+    "verified": true,
+    "evidence": "Center-crop geometry and real Qt painting pass portrait, landscape, resize and source-DPR tests. Actual Studio screenshots with labelled fixtures: docs/verification/critical-fixes/."
+  },
+  "tls_endpoint": {
+    "verified": true,
+    "evidence": "Strict TLSv1.3 validation of actual listener at current LAN QR IP passed chain, signature, SAN, EKU and validity. Cached key/signature mismatch and stale-listener regressions covered. This does not attest iPhone trust."
+  },
+  "critical_regressions": {
+    "verified": true,
+    "evidence": "165 local Python/Qt/media/security tests passed after protected-future-recording cleanup, quality checks, variable-cadence preservation and delayed-audio fixes. Integrity/quality/size failures, old database migration, Keep Original, cancellation, database and unlink failures preserve valid media. Stop/compression and encrypted remote controls still pass. Actual H.264/HEVC/AV1 encodes on a native 1080p excerpt passed frame/quality checks. Ruff/diff checks passed. See docs/COMPRESSION_VERIFICATION.md. Physical Windows and phones remain unverified."
   }
 }
