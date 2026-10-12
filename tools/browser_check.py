@@ -14,7 +14,6 @@ import subprocess
 import tempfile
 import time
 
-from playwright.async_api import async_playwright
 from framelink.media.buffers import Sources
 from framelink.media.model import RecordingConfig, State
 from framelink.networking.server import PhoneServer
@@ -187,6 +186,8 @@ async def main():
                 await asyncio.sleep(0.02)
         errors = []
         try:
+            from playwright.async_api import async_playwright
+
             async with async_playwright() as playwright:
                 executable = Path(playwright.chromium.executable_path)
                 wrapper = root / "chromium-isolated"
