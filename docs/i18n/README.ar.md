@@ -40,7 +40,7 @@
 
 **Linux x86_64:** امنح AppImage صلاحية التنفيذ وشغّله، أو فك ضغط أرشيف tarball وشغّل `./FrameLink/FrameLink`. يتطلب Wayland خدمة PipeWire وبوابة مشاركة شاشة تعمل بصورة صحيحة.
 
-[تنزيلات v0.1.0](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0) تحتوي على نسخ تطويرية قديمة لا تتضمن الإصلاحات الحالية، وليست إصداراً إنتاجياً موثّقاً. لتشغيل النسخة الحالية من المصدر، استخدم Python 3.12 أو أحدث واتبع [تعليمات البناء](../USER_GUIDE.md#build-from-source). نشر إصدار جديد مشروط باكتمال التحقق ومراجعة التراخيص.
+حمّل الحزم الجاهزة للتشغيل لأنظمة Windows وLinux من صفحة [الإصدارات Releases](https://github.com/Yousef-Jad/FrameLink/releases). لتشغيل النسخة الحالية من المصدر، استخدم Python 3.12 أو أحدث واتبع [تعليمات البناء](../USER_GUIDE.md#build-from-source).
 
 ## البدء في ثلاث خطوات
 

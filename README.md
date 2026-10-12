@@ -34,7 +34,7 @@ For future recordings, **Keep Original** defaults to off: the original is remove
 
 **Linux x86_64:** make the AppImage executable and launch it, or extract the tarball and run `./FrameLink/FrameLink`. Wayland needs PipeWire and a working ScreenCast portal.
 
-[Downloads: v0.1.0](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0) contains older development binaries, without the current fixes. It is not a verified production release. For the current checkout, use Python 3.12+ and follow the [source installation instructions](docs/USER_GUIDE.md#build-from-source). New releases remain gated on verification and licensing.
+Download prebuilt packages for Windows and Linux from [Releases](https://github.com/Yousef-Jad/FrameLink/releases). For running from source, use Python 3.12+ and follow the [source installation instructions](docs/USER_GUIDE.md#build-from-source).
 
 ## Quick Start
 

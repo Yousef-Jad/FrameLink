@@ -34,7 +34,7 @@ FrameLink 可以录制屏幕、手机摄像头，或同时录制两者。电脑�
 
 **Linux x86_64：** 为 AppImage 添加执行权限并启动，或解压 tar 包后运行 `./FrameLink/FrameLink`。Wayland 需要 PipeWire 和可用的 ScreenCast 门户。
 
-[v0.1.0 下载页](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0)提供的是旧开发版本，不包含当前修复，也不是经过完整验证的正式版本。要运行当前检出的源码，请使用 Python 3.12 或更高版本，并参阅[源码安装说明](../USER_GUIDE.md#build-from-source)。新版本发布仍需通过验证和许可证审查。
+可从 [Releases 发布页](https://github.com/Yousef-Jad/FrameLink/releases)下载适用于 Windows 和 Linux 的预编译安装包。如需从源码运行，请使用 Python 3.12 或更高版本并参阅[源码安装说明](../USER_GUIDE.md#build-from-source)。
 
 ## 三步上手
 

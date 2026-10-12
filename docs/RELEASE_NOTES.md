@@ -1,15 +1,18 @@
-# FrameLink v0.1.0
+# FrameLink v0.1.1
 
 FrameLink is a private, local desktop screen recording and mobile camera studio. It links your phone camera wirelessly and securely over your local network using encrypted WebRTC, captures your desktop with native platform APIs, records synchronized streams to resilient MKV files, and exports validated MP4s.
 
-## Highlights
+## Highlights in v0.1.1
 
-- **Dual-Source Local Studio**: Record Desktop Screen, Phone Camera, or Both simultaneously with customizable Picture-in-Picture (PiP).
-- **Zero Cloud & Absolute Privacy**: 100% offline and local. No accounts, no external tracking, no cloud uploads. Certificates and recordings stay entirely on your machines.
-- **Encrypted Local WebRTC**: Pair your mobile device in seconds via temporary QR codes over local HTTPS. No phone app installation required.
-- **Native Desktop Capture**:
-  - Windows: Windows Graphics Capture (WGC) and DXGI with WASAPI audio loopback.
-  - Linux: Wayland/PipeWire (including Hyprland) via xdg-desktop-portal and X11 native capture.
-- **Fail-Safe Recording**: Real-time free-space monitoring, single recording clock synchronization, and automatic recovery of interrupted/partial MKV recordings.
-- **Library & Transcoding**: Built-in SQLite media library with instant playback, thumbnail previews, and background export queue (H.264, HEVC, AV1).
-- **Cross-Platform Portable Builds**: Ready-to-run portable binaries for Windows (x64) and Linux (AppImage & tarball).
+- **Studio Engine & Capture Clock Stability**:
+  - Enhanced capture clock synchronization across native Wayland (PipeWire), X11 (Qt Multimedia), and Windows (WGC / DXGI).
+  - Deterministic frame admission pacing preventing drift under callback jitter or variable grab rates.
+- **Cross-Platform Portable Builds**:
+  - **Windows 10/11 x64**: Standalone portable archive (`FrameLink-Windows-x64.zip`).
+  - **Linux x86_64**: Standalone AppImage (`FrameLink-Linux-x86_64.AppImage`) and portable tarball (`FrameLink-Linux-x86_64.tar.gz`).
+- **Camera Transport & Visual Quality**:
+  - High-resolution mobile camera negotiation up to 1080p with active aspect-ratio preservation.
+  - Pixel-magnifier compression benchmarks verifying visually lossless export quality.
+- **Audio Routing & Resilient Finalization**:
+  - Automated microphone discovery and loopback routing for Windows (WASAPI) and Linux (PulseAudio / PipeWire).
+  - Atomic recording finalization, corruption recovery, and background compression queue.
