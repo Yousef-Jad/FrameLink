@@ -655,8 +655,7 @@ class MainWindow(QMainWindow):
 
     def apply_mode_audio_defaults(self):
         self.phone_audio.setChecked(self.mode == "phone")
-        has_mic = hasattr(self, "mic_device") and self.mic_device.currentData() is not None
-        self.mic_enabled.setChecked(self.mode != "phone" and has_mic)
+        self.mic_enabled.setChecked(self.mode != "phone")
         self.system_enabled.setChecked(False)
         self.sync_audio_controls()
 
