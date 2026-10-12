@@ -28,9 +28,16 @@ def run_job(library, ident, settings=None, automatic=False):
 def test_future_recording_replaced_only_after_valid_smaller_export(media_file, tmp_path, extension):
     # Use a real remux when testing MP4; never label MKV bytes as MP4.
     if extension == ".mp4":
-        import subprocess
+        import av
+
         source = tmp_path / "new.mp4"
-        subprocess.run(["ffmpeg", "-v", "error", "-i", str(media_file), "-c", "copy", str(source)], check=True)
+        with av.open(str(media_file)) as in_c, av.open(str(source), mode="w", format="mp4") as out_c:
+            mapping = {s.index: out_c.add_stream_from_template(s) for s in in_c.streams}
+            for packet in in_c.demux():
+                if packet.dts is None or packet.stream.index not in mapping:
+                    continue
+                packet.stream = mapping[packet.stream.index]
+                out_c.mux(packet)
     else:
         source = media_file
     library = Library(tmp_path / "db")
