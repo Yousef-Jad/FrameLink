@@ -167,18 +167,19 @@ class DesktopCapture(QObject):
         # first interval can include a long portal permission wait; use this
         # grab's completion timestamp instead of introducing that wait as drift.
         native_time = frame.endTime()
-        if native_time < 0:
+        if native_time <= 0:
             native_time = frame.startTime()
         stamp = now
-        if native_time >= 0:
+        if native_time > 0:
             source_time = native_time / 1000000
             if self._timestamp_offset is None or (
                 self._last_source_time is not None and source_time < self._last_source_time
             ):
                 self._timestamp_offset = now - source_time
                 self._admission.reset()
-            self._last_source_time = source_time
-            stamp = self._timestamp_offset + source_time
+            if self._last_source_time is None or source_time > self._last_source_time:
+                self._last_source_time = source_time
+                stamp = self._timestamp_offset + source_time
         self._source_frame_times.append(stamp)
         if not self._admission.accept(stamp, self.max_fps):
             self.metrics["throttled"] += 1

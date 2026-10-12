@@ -80,6 +80,8 @@ def main():
         window.output = args.capture_test
         window.recorder.output = args.capture_test
         window.library.set_setting("auto_compress", False)
+        window.mic_enabled.setChecked(False)
+        window.system_enabled.setChecked(False)
         if not window.desktop.active:
             window.toggle_preview()
         started = [False]
@@ -91,7 +93,16 @@ def main():
 
             now = __import__("time").monotonic()
             if not started[0] and window.sources.screen.latest():
-                window.start_recording()
+                if not window.start_recording():
+                    test_timer.stop()
+                    exit_code[0] = 1
+                    print(
+                        f"Capture test failed to start recording: {window.recorder.error}",
+                        file=sys.stderr,
+                        flush=True,
+                    )
+                    window.close()
+                    return
                 started[0] = True
             if (
                 started[0]
