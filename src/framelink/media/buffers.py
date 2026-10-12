@@ -17,16 +17,32 @@ class VideoBuffer:
 
     def __init__(self, capacity=4):
         self.frames = deque(maxlen=capacity)
+        self.capacity = capacity
         self.lock = threading.Lock()
         self.count = 0
+        self.dropped = 0
+        self.evicted = 0
+        self.consumer_sequence = None
+        self.max_depth = 0
         self.received = deque(maxlen=240)
+        self.intervals_ms = deque(maxlen=240)
 
     def put(self, rgb, timestamp=None):
         ts = time.monotonic() if timestamp is None else timestamp
         with self.lock:
+            if len(self.frames) == self.capacity:
+                self.evicted += 1
+                if self.consumer_sequence is not None and self.frames[0].sequence > self.consumer_sequence:
+                    self.dropped += 1
+            arrival = time.monotonic()
+            if self.received:
+                self.intervals_ms.append((arrival - self.received[-1]) * 1000)
             self.count += 1
             self.frames.append(VideoSample(rgb, ts, self.count))
-            self.received.append(time.monotonic())
+            self.received.append(arrival)
+            if self.consumer_sequence is not None:
+                pending = sum(f.sequence > self.consumer_sequence for f in self.frames)
+                self.max_depth = max(self.max_depth, pending)
 
     def latest(self, before=None):
         with self.lock:
@@ -36,15 +52,63 @@ class VideoBuffer:
                 return self.frames[-1]
             return next((f for f in reversed(self.frames) if f.timestamp <= before), None)
 
+    def next_after(self, sequence):
+        """Return the oldest buffered sample after a consumed sequence."""
+        with self.lock:
+            self.consumer_sequence = sequence
+            candidates = [sample for sample in self.frames if sample.sequence > sequence]
+            if not candidates:
+                return None
+            # If the producer outran the recorder and the deque evicted frames,
+            # jump to the newest sample instead of replaying stale backlog.
+            sample = candidates[-1] if candidates[0].sequence > sequence + 1 else candidates[0]
+            self.consumer_sequence = sample.sequence
+            return sample
+
+    def release_consumer(self):
+        with self.lock:
+            self.consumer_sequence = None
+
     def clear(self):
         with self.lock:
             self.frames.clear()
             self.received.clear()
+            self.intervals_ms.clear()
+            self.consumer_sequence = None
 
     def fps(self):
         with self.lock:
             times = [t for t in self.received if t > time.monotonic() - 3]
         return (len(times) - 1) / (times[-1] - times[0]) if len(times) > 1 else 0.0
+
+    def metrics_snapshot(self):
+        with self.lock:
+            times = list(self.received)
+            intervals = sorted(self.intervals_ms)
+            if len(times) > 1 and times[-1] > times[0]:
+                fps = (len(times) - 1) / (times[-1] - times[0])
+            else:
+                fps = 0.0
+
+            def percentile(value):
+                if not intervals:
+                    return 0.0
+                return intervals[min(len(intervals) - 1, round((len(intervals) - 1) * value))]
+
+            return {
+                "received": self.count,
+                "dropped": self.dropped,
+                "evicted_history": self.evicted,
+                "retained_frames": len(self.frames),
+                "queue_depth": sum(f.sequence > self.consumer_sequence for f in self.frames)
+                if self.consumer_sequence is not None
+                else 0,
+                "max_queue_depth": self.max_depth,
+                "capture_fps": fps,
+                "interval_p50_ms": percentile(0.50),
+                "interval_p95_ms": percentile(0.95),
+                "interval_p99_ms": percentile(0.99),
+            }
 
 
 class AudioBuffer:
@@ -79,6 +143,10 @@ class AudioBuffer:
 
 class Sources:
     def __init__(self):
-        self.screen = VideoBuffer()
-        self.phone = VideoBuffer(8)
+        # At 1080p one RGB frame is roughly 6 MB; retaining 240 phone frames
+        # could consume more than a GB before the encoder catches up.
+        self.screen = VideoBuffer(8)
+        self.phone = VideoBuffer(16)
+        # Preview is latest-value only and must not compete with recording.
+        self.phone_preview = VideoBuffer(2)
         self.audio = {name: AudioBuffer() for name in ("phone", "mic", "system")}

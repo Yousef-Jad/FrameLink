@@ -2,7 +2,7 @@ import time
 import av
 import numpy as np
 from PySide6.QtCore import QObject, Signal
-from PySide6.QtMultimedia import QAudioSource, QAudioFormat
+from PySide6.QtMultimedia import QAudio, QAudioSource, QAudioFormat
 
 
 class AudioCapture(QObject):
@@ -37,10 +37,12 @@ class AudioCapture(QObject):
         self.source.stateChanged.connect(self._state_changed)
 
     def _state_changed(self, state):
-        from PySide6.QtMultimedia import QAudio
-
-        if self.source and self.source.error() != QAudio.Error.NoError:
-            self.error.emit(f"Audio capture error: {self.source.error().name}")
+        if self.source:
+            error = self.source.error()
+            # Qt 6.12 bindings expose distinct QAudio/QtAudio enum classes.
+            # Compare their values so NoError never becomes a false alarm.
+            if error.value != QAudio.Error.NoError.value:
+                self.error.emit(f"Audio capture error: {error.name}")
 
     def read(self):
         if self.io is None:

@@ -21,8 +21,18 @@ def test_recording_transitions():
     machine = StateMachine()
     with pytest.raises(ValueError):
         machine.transition(State.PAUSED)
-    for state in [State.RECORDING, State.PAUSED, State.RECORDING, State.STOPPING, State.IDLE]:
+    for state in [
+        State.PREPARING,
+        State.RECORDING,
+        State.PAUSED,
+        State.RECORDING,
+        State.STOPPING,
+        State.FINALIZING,
+        State.COMPLETED,
+        State.IDLE,
+    ]:
         machine.transition(state)
+    machine.transition(State.PREPARING)
     machine.transition(State.RECORDING)
     machine.transition(State.ERROR)
     with pytest.raises(ValueError):

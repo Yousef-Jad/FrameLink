@@ -48,7 +48,9 @@ def main():
     env = os.environ | {"ARCH": "x86_64", "APPIMAGE_EXTRACT_AND_RUN": "1"}
     subprocess.run(
         [str(tool), "--runtime-file", str(runtime), "--no-appstream", str(appdir), str(artifact)],
-        env=env, check=True, timeout=300
+        env=env,
+        check=True,
+        timeout=300,
     )
     with tempfile.TemporaryDirectory() as data:
         subprocess.run(

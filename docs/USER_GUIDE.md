@@ -1,6 +1,6 @@
 # FrameLink user guide
 
-Detailed setup and operating reference, including local application fixes not yet pushed to the public repository. For a concise overview, see the [project README](../README.md).
+Detailed setup and operating reference. For a concise overview, see the [project README](../README.md).
 
 FrameLink is a local desktop and phone camera recording studio. It receives browser camera video over encrypted WebRTC, captures desktop video through native platform APIs, records to recoverable MP4 files, and creates validated MP4 exports.
 

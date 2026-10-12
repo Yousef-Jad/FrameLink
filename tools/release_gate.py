@@ -15,6 +15,13 @@ required = (
     "offline_hotspot",
     "audio_sync",
     "dependency_license_audit",
+    "recording_stop",
+    "recording_finalization",
+    "compression_after_stop",
+    "camera_quality",
+    "preview_fill",
+    "tls_endpoint",
+    "critical_regressions",
 )
 report = json.loads(Path(sys.argv[1]).read_text())
 missing = [

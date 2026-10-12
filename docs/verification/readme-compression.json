@@ -1,8 +1,8 @@
 {
   "original": {
-    "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen.mkv",
-    "bytes": 10916125,
-    "sha256": "9305db046b757628a91a7e9a1cd904bd72f044953ae51134d8b47809fb99911c",
+    "path": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen.mkv",
+    "bytes": 12858655,
+    "sha256": "48ad7b709a80e8a17edfd23339841b17a3192b40f3947a88e6bed01da35cc69a",
     "probe": {
       "streams": [
         {
@@ -32,7 +32,7 @@
           "start_pts": 0,
           "start_time": "0.000000",
           "bits_per_raw_sample": "8",
-          "nb_read_frames": "899",
+          "nb_read_frames": "837",
           "extradata_size": 39,
           "disposition": {
             "default": 0,
@@ -61,7 +61,7 @@
         }
       ],
       "format": {
-        "filename": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen.mkv",
+        "filename": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen.mkv",
         "nb_streams": 1,
         "nb_programs": 0,
         "nb_stream_groups": 0,
@@ -69,8 +69,8 @@
         "format_long_name": "Matroska / WebM",
         "start_time": "0.000000",
         "duration": "30.033000",
-        "size": "10916125",
-        "bit_rate": "2907768",
+        "size": "12858655",
+        "bit_rate": "3425206",
         "probe_score": 100,
         "tags": {
           "ENCODER": "Lavf62.12.101"
@@ -79,9 +79,9 @@
     }
   },
   "compressed": {
-    "path": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen-export-21f02e96.mp4",
-    "bytes": 4519737,
-    "sha256": "27d2110a87b8af5d4b0b8fa2a575a7873985ceaa55ebd48701b555a7846e4162",
+    "path": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen-export-57403dbb.mp4",
+    "bytes": 6868298,
+    "sha256": "281b3bb1d4bb32d18967a5237c2e87adfd1db99a99969a020b419d7b6ab6fc01",
     "probe": {
       "streams": [
         {
@@ -107,16 +107,16 @@
           "nal_length_size": "4",
           "id": "0x1",
           "r_frame_rate": "30/1",
-          "avg_frame_rate": "26970/901",
+          "avg_frame_rate": "25110/901",
           "time_base": "1/15360",
           "start_pts": 0,
           "start_time": "0.000000",
           "duration_ts": 461312,
           "duration": "30.033333",
-          "bit_rate": "1202689",
+          "bit_rate": "1828273",
           "bits_per_raw_sample": "8",
-          "nb_frames": "899",
-          "nb_read_frames": "899",
+          "nb_frames": "837",
+          "nb_read_frames": "837",
           "extradata_size": 47,
           "disposition": {
             "default": 1,
@@ -146,7 +146,7 @@
         }
       ],
       "format": {
-        "filename": "artifacts/native-final-30/recordings/FrameLink-20261012-123001-34224f-screen-export-21f02e96.mp4",
+        "filename": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen-export-57403dbb.mp4",
         "nb_streams": 1,
         "nb_programs": 0,
         "nb_stream_groups": 0,
@@ -154,8 +154,8 @@
         "format_long_name": "QuickTime / MOV",
         "start_time": "0.000000",
         "duration": "30.033333",
-        "size": "4519737",
-        "bit_rate": "1203925",
+        "size": "6868298",
+        "bit_rate": "1829513",
         "probe_score": 100,
         "tags": {
           "major_brand": "isom",
@@ -166,7 +166,7 @@
       }
     }
   },
-  "reduction_percent": 58.595774599503024,
+  "reduction_percent": 46.586186502398576,
   "settings": {
     "codec": "libx264",
     "quality": 24,
@@ -177,9 +177,18 @@
     "target_mb": 0
   },
   "frame": {
-    "zero_based_index": 300,
+    "zero_based_index": 243,
     "original_timestamp": 10.0,
     "compressed_timestamp": 10.0
+  },
+  "magnifier": {
+    "crop_x": 145,
+    "crop_y": 382,
+    "crop_w": 80,
+    "crop_h": 38,
+    "scale": 8,
+    "filter": "nearest",
+    "source_content": "Terminal monospace syntax-highlighted command 'git s'"
   },
   "comparison": {
     "size": [

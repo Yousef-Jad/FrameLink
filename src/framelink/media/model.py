@@ -8,10 +8,17 @@ import time
 
 class State(str, Enum):
     IDLE = "Ready"
+    PREPARING = "Preparing"
     RECORDING = "Recording"
     PAUSED = "Paused"
-    STOPPING = "Finalizing"
+    STOPPING = "Stopping"
+    FINALIZING = "Finalizing recording"
+    COMPLETED = "Completed"
     ERROR = "Error"
+
+    @property
+    def active(self):
+        return self in {self.PREPARING, self.RECORDING, self.PAUSED, self.STOPPING, self.FINALIZING}
 
 
 class SessionClock:
@@ -40,22 +47,27 @@ class SessionClock:
 
 class StateMachine:
     allowed = {
-        State.IDLE: {State.RECORDING},
+        State.IDLE: {State.PREPARING},
+        State.PREPARING: {State.RECORDING, State.STOPPING, State.ERROR},
         State.RECORDING: {State.PAUSED, State.STOPPING, State.ERROR},
         State.PAUSED: {State.RECORDING, State.STOPPING, State.ERROR},
-        State.STOPPING: {State.IDLE, State.ERROR},
+        State.STOPPING: {State.FINALIZING, State.ERROR},
+        State.FINALIZING: {State.COMPLETED, State.ERROR},
+        State.COMPLETED: {State.IDLE},
         State.ERROR: {State.IDLE},
     }
 
     def __init__(self):
         self.state = State.IDLE
         self.lock = threading.RLock()
+        self.history = [State.IDLE]
 
     def transition(self, state):
         with self.lock:
             if state not in self.allowed[self.state]:
                 raise ValueError(f"Invalid recording transition: {self.state.value} → {state.value}")
             self.state = state
+            self.history.append(state)
 
 
 class TimestampNormalizer:

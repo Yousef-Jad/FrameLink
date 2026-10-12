@@ -1,1 +1,253 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FrameLink certificate setup</title><body><main><h1>Trust your desktop</h1><p>This HTTP setup page cannot authenticate the desktop. Before installing anything, verify the certificate's SHA-256 fingerprint against the value displayed in FrameLink on your desktop. Prefer transferring the certificate by USB if you cannot inspect its fingerprint on your phone.</p><p><strong>Installing a root CA grants it authority to authenticate websites on your phone.</strong> Install only your own desktop's certificate, keep its private key protected, and remove the trust when you stop using FrameLink. Never install a certificate from a stranger's QR code.</p><p>Desktop certificate fingerprint (compare with the desktop and the downloaded certificate):</p><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{{FINGERPRINT}}</pre><h2>iPhone / iPad</h2><ol><li><a href="/ios.mobileconfig">Download the certificate profile</a>.</li><li>Open Settings → General → VPN &amp; Device Management, inspect the downloaded profile, and install it.</li><li>Open Settings → General → About → Certificate Trust Settings. Enable full trust for this FrameLink Local CA.</li><li>Scan a fresh HTTPS pairing QR code from the desktop. A certificate warning must no longer appear.</li></ol><h2>Android</h2><ol><li><a href="/ca.crt">Download the root CA certificate</a>.</li><li>In Settings, search for “Install a certificate”, then select CA certificate. Paths vary by device. Review the system warning and inspect the certificate.</li><li>Scan a fresh HTTPS pairing QR code and open it in Chrome.</li></ol><p>This page does not request camera access. Camera access is requested only on the trusted HTTPS page after you press Connect camera. No internet connection is required. If trust cannot be established, do not bypass the browser's security warning.</p></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FrameLink — Certificate Trust Setup</title>
+  <style>
+    :root {
+      --bg: #0b0e14;
+      --card: #151922;
+      --border: #283042;
+      --text: #f0f3fa;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      margin: 0;
+      padding: 24px 16px 48px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.5;
+    }
+    .container {
+      width: 100%;
+      max-width: 520px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    header {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .badge-top {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    h1 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+    .subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      margin: 0;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+    .card-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 17px;
+      font-weight: 600;
+      margin-top: 0;
+      margin-bottom: 14px;
+    }
+    .fingerprint-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+      font-size: 12px;
+      color: #58a6ff;
+      word-break: break-all;
+      line-height: 1.4;
+      margin-top: 8px;
+    }
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin: 16px 0;
+    }
+    .step {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .step-num {
+      flex-shrink: 0;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #38bdf8;
+      font-weight: 700;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-content {
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+    .step-content strong {
+      color: #fff;
+    }
+    .step-content .hint {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 2px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 13px 18px;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      box-sizing: border-box;
+    }
+    .btn-primary {
+      background: var(--accent);
+      color: white;
+    }
+    .btn-primary:active {
+      background: var(--accent-hover);
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #e2e8f0;
+      border: 1px solid #334155;
+      margin-top: 10px;
+    }
+    .btn-secondary:active {
+      background: #334155;
+    }
+    .callout-warning {
+      background: rgba(245, 158, 11, 0.1);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #fde68a;
+      margin: 12px 0;
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body><p style="padding:20px">The HTTP download is unauthenticated. Prefer public certificate transfer by USB from the desktop. Before installing, compare the actual certificate SHA-256 fingerprint with the desktop, not just with this page. Root trust grants authority to authenticate websites. Never transfer the CA private key.</p>
+  <div class="container">
+    <header>
+      <div class="badge-top">One-Time Security Setup</div>
+      <h1>Trust FrameLink Desktop</h1>
+      <p class="subtitle">Enables private, high-speed camera streaming over local Wi-Fi without internet or third-party servers.</p>
+    </header>
+
+    <div class="card">
+      <h2 class="card-title">🔐 Desktop Certificate Fingerprint</h2>
+      <p style="font-size:13px; color:var(--muted); margin:0;">Verify this SHA-256 fingerprint matches the value displayed in FrameLink Studio on your computer:</p>
+      <div class="fingerprint-box">{{FINGERPRINT}}</div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">📱 iPhone / iPad Setup (Safari)</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <strong>Download the configuration profile</strong>
+            <span class="hint">Tap below, then tap "Allow" when Safari asks to download.</span>
+            <div style="margin-top: 10px;">
+              <a href="/ios.mobileconfig" class="btn btn-primary">Download iOS Trust Profile</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <strong>Install the profile in Settings</strong>
+            <span class="hint">Open the iPhone <strong>Settings</strong> app → tap <strong>Profile Downloaded</strong> (near the top) → tap <strong>Install</strong> (enter your passcode).</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <strong>Enable Full Root Trust (Crucial!)</strong>
+            <span class="hint">In Settings, go to: <strong>General → About → Certificate Trust Settings</strong>.<br>Under <em>"ENABLE FULL TRUST FOR ROOT CERTIFICATES"</em>, toggle ON <strong>FrameLink Local CA</strong>.</span>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <strong>Verify and open camera</strong>
+            <span class="hint">Open this only after enabling full trust. If Safari warns, stop; never choose Visit This Website. The page itself cannot detect a bypassed warning.</span>
+            <div style="margin-top: 10px;">
+              <a href="https://{{HOST}}:{{PORT}}/verify" class="btn btn-secondary">Test Secure Connection</a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout-warning">
+        ⚠️ <strong>Why this is needed:</strong> iOS requires explicit user permission in Certificate Trust Settings for private local servers to access camera streams securely.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="card-title">🤖 Android Setup (Chrome)</h2>
+      <div class="step-content">
+        <ol style="padding-left: 20px; margin: 8px 0 14px; font-size: 13px; color: #cbd5e1;">
+          <li>Download the CA certificate below.</li>
+          <li>In Android Settings, search for <strong>"Install a certificate"</strong> → choose <strong>CA certificate</strong>.</li>
+          <li>Select the downloaded certificate and confirm.</li>
+        </ol>
+        <a href="/ca.crt" class="btn btn-secondary">Download CA Certificate (.crt)</a>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

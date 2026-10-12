@@ -26,7 +26,9 @@ def main():
     output = ROOT / "artifacts"
     output.mkdir(exist_ok=True)
     manifest = output / "package-inventory.json"
-    subprocess.run([sys.executable, str(ROOT / "tools/package_inventory.py"), str(target), str(manifest)], check=True)
+    subprocess.run(
+        [sys.executable, str(ROOT / "tools/package_inventory.py"), str(target), str(manifest)], check=True
+    )
     shutil.copy(manifest, target / "package-inventory.json")
     executable = target / ("FrameLink.exe" if sys.platform == "win32" else "FrameLink")
     env = os.environ | {"QT_QPA_PLATFORM": "offscreen"}

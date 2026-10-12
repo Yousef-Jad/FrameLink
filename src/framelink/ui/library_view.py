@@ -32,9 +32,13 @@ def _duration(seconds):
 
 
 def _size(value):
-    if value >= 1024**3:
-        return f"{value / 1024**3:.1f} GB"
-    return f"{value / 1024**2:.1f} MB"
+    if value >= 1000**3:
+        return f"{value / 1000**3:.1f} GB"
+    if value >= 1000**2:
+        return f"{value / 1000**2:.1f} MB"
+    if value >= 1000:
+        return f"{value / 1000:.1f} KB"
+    return f"{value:.0f} B"
 
 
 class RecordingTile(MaterialSurface):
@@ -62,7 +66,11 @@ class RecordingTile(MaterialSurface):
         thumb = item.get("thumbnail")
         if thumb and Path(thumb).is_file():
             pixmap = QPixmap(thumb)
-            self.thumbnail.setPixmap(pixmap.scaled(360, 202, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
+            self.thumbnail.setPixmap(
+                pixmap.scaled(
+                    360, 202, Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation
+                )
+            )
         else:
             self.thumbnail.setPixmap(symbol("studio", "#6F7787").pixmap(QSize(34, 34)))
         layout.addWidget(self.thumbnail)
@@ -85,6 +93,21 @@ class RecordingTile(MaterialSurface):
         )
         self.metadata.setObjectName("muted")
         layout.addWidget(self.metadata)
+        report = info.get("compression")
+        if report:
+            before, after = report["before_bytes"], report["after_bytes"]
+            self.savings = QLabel(
+                f"Before {_size(before)} → After {_size(after)}\n"
+                + ("Export discarded · original retained · disk saved: 0 MB"
+                   if report.get("export_discarded")
+                   else f"Disk saved: {_size(report['saved_bytes'])} ({report['reduction_percent']:.1f}%)"
+                   if not report["original_retained"]
+                   else f"Original retained · disk saved: 0 MB\nExport reduction: {report['reduction_percent']:.1f}%")
+            )
+            self.savings.setWordWrap(True)
+            self.savings.setObjectName("muted")
+            self.savings.setToolTip(report["reason"])
+            layout.addWidget(self.savings)
         created = time.strftime("%b %d, %Y", time.localtime(item["created"]))
         self.date = QLabel(created)
         self.date.setObjectName("muted")
@@ -104,8 +127,17 @@ class RecordingTile(MaterialSurface):
 
     def _menu(self):
         menu = QMenu(self)
-        for text, action in [("Play", "play"), ("Open folder", "folder"), ("Rename", "rename"), ("Compress again", "compress"), ("Export", "export"), ("Delete", "delete")]:
-            menu.addAction(text, lambda checked=False, selected=action: self.actionRequested.emit(self.ident, selected))
+        for text, action in [
+            ("Play", "play"),
+            ("Open folder", "folder"),
+            ("Rename", "rename"),
+            ("Compress again", "compress"),
+            ("Export", "export"),
+            ("Delete", "delete"),
+        ]:
+            menu.addAction(
+                text, lambda checked=False, selected=action: self.actionRequested.emit(self.ident, selected)
+            )
         menu.exec(self.more.mapToGlobal(self.more.rect().bottomLeft()))
 
     def mouseDoubleClickEvent(self, event):
@@ -134,7 +166,12 @@ class LibraryView(QWidget):
         self.search.textChanged.connect(self._render)
         controls.addWidget(self.search, 1)
         self.sort = QComboBox()
-        for label, value in [("Newest", "newest"), ("Oldest", "oldest"), ("Longest", "duration"), ("Largest", "size")]:
+        for label, value in [
+            ("Newest", "newest"),
+            ("Oldest", "oldest"),
+            ("Longest", "duration"),
+            ("Largest", "size"),
+        ]:
             self.sort.addItem(label, value)
         self.sort.currentIndexChanged.connect(self._render)
         controls.addWidget(self.sort)
@@ -224,10 +261,14 @@ class LibraryView(QWidget):
             self.jobs_layout.addWidget(status)
             if job["status"] in {"queued", "running"}:
                 action = QPushButton("Cancel")
-                action.clicked.connect(lambda checked=False, ident=job["id"]: self.jobActionRequested.emit(ident, "cancel"))
+                action.clicked.connect(
+                    lambda checked=False, ident=job["id"]: self.jobActionRequested.emit(ident, "cancel")
+                )
             else:
                 action = QPushButton("Retry")
-                action.clicked.connect(lambda checked=False, ident=job["id"]: self.jobActionRequested.emit(ident, "retry"))
+                action.clicked.connect(
+                    lambda checked=False, ident=job["id"]: self.jobActionRequested.emit(ident, "retry")
+                )
             self.jobs_layout.addWidget(action)
         self.jobs_layout.addStretch()
 

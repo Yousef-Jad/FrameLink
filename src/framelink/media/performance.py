@@ -6,6 +6,15 @@ import threading
 import psutil
 
 
+def stable_frame_rate(encode_fps, capture_fps, refresh_fps):
+    """Conservative presets bounded by delivery, encoding, and the display."""
+    capacity = min(encode_fps, capture_fps, refresh_fps)
+    for threshold, rate in ((115, 120), (55, 60), (28, 30)):
+        if capacity >= threshold:
+            return rate, False
+    return 15, capacity < 15
+
+
 class GpuUtilization:
     """System-wide utilization where a documented driver interface is available."""
 

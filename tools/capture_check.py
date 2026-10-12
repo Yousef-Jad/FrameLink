@@ -27,7 +27,7 @@ try:
         "stdout": result.stdout,
         "stderr": result.stderr,
         "platform": sys.platform,
-        "verified": result.returncode == 0 and bool(list(output.glob("*.mkv"))),
+        "verified": result.returncode == 0 and bool(list(output.glob("*.mp4"))),
     }
 except subprocess.TimeoutExpired:
     report = {"verified": False, "platform": sys.platform, "error": "Desktop capture exceeded 120 seconds"}

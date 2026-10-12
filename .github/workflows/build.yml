@@ -31,7 +31,10 @@ jobs:
           QT_QPA_PLATFORM: offscreen
         run: python -m pytest -q --junitxml=artifacts/tests.xml
       - name: Validate mobile JavaScript
-        run: node --check src/framelink/web/camera.js
+        run: |
+          node --check src/framelink/web/camera.js
+          node --check src/framelink/web/quality.js
+          node tests/camera_quality.cjs
       - name: Runtime smoke test
         env:
           QT_QPA_PLATFORM: offscreen

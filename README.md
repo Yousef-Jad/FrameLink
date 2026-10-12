@@ -22,7 +22,9 @@ FrameLink records your screen, a phone camera, or both. The desktop receives cam
 
 ![Original recording on the left; compressed recording on the right](docs/assets/compression-comparison.png)
 
-**10.92 MB → 4.52 MB · 58.6% smaller.** One real 30-second, 1920×1080 screen recording; both files use H.264. The split shows the same frame at 10.000 seconds. Compression is lossy, and results vary with content and settings. [Files, settings and methodology](docs/COMPRESSION_EVIDENCE.md).
+**12.86 MB → 6.87 MB | 46.6% space saved | H.264**
+
+Real 30-second 1920×1080 desktop recording compared at the exact same frame (10.000s). The 8× nearest-neighbor crops highlight fine-detail retention and subtle DCT compression characteristics. Lossy results vary by scene complexity and settings. [Files, settings and methodology](docs/COMPRESSION_EVIDENCE.md).
 
 For future recordings, **Keep Original** defaults to off: the original is removed only after a smaller export passes integrity and sampled quality checks. Existing recordings remain protected. [Retention policy](docs/COMPRESSION_RETENTION.md).
 
@@ -32,7 +34,7 @@ For future recordings, **Keep Original** defaults to off: the original is remove
 
 **Linux x86_64:** make the AppImage executable and launch it, or extract the tarball and run `./FrameLink/FrameLink`. Wayland needs PipeWire and a working ScreenCast portal.
 
-[Downloads: v0.1.0](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0) contains older development binaries, without the current fixes. It is not a verified production release. For the current checkout, use Python 3.12+ and follow the [source installation instructions](docs/USER_GUIDE.md#build-from-source). New releases remain gated on verification and licensing. This documentation also covers local application fixes that have not yet been pushed.
+[Downloads: v0.1.0](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0) contains older development binaries, without the current fixes. It is not a verified production release. For the current checkout, use Python 3.12+ and follow the [source installation instructions](docs/USER_GUIDE.md#build-from-source). New releases remain gated on verification and licensing.
 
 ## Quick Start
 

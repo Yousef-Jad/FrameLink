@@ -124,6 +124,39 @@ class SegmentedControl(QFrame):
         p.drawLine(int(x - 10), self.height() - 3, int(x + 10), self.height() - 3)
 
 
+class AudioMeter(QFrame):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setObjectName("audio-meter")
+        self.setFixedSize(14, 28)
+        self._level = 0.0
+        self.setToolTip("Microphone input level")
+
+    def set_level(self, level: float):
+        self._level = max(0.0, min(1.0, level))
+        self.update()
+
+    def paintEvent(self, event):
+        del event
+        painter = QPainter(self)
+        painter.setRenderHint(QPainter.RenderHint.Antialiasing)
+        bars = 5
+        bar_h = 3
+        gap = 2
+        total_h = bars * bar_h + (bars - 1) * gap
+        start_y = (self.height() - total_h) // 2
+        for i in range(bars):
+            y = start_y + (bars - 1 - i) * (bar_h + gap)
+            active = self._level >= ((i + 0.5) / bars)
+            color = QColor("#22C55E") if i < 3 else (QColor("#EAB308") if i < 4 else QColor("#EF4444"))
+            if not active:
+                color = QColor(255, 255, 255, 30)
+            painter.setBrush(color)
+            painter.setPen(Qt.PenStyle.NoPen)
+            painter.drawRoundedRect(1, y, self.width() - 2, bar_h, 1, 1)
+        painter.end()
+
+
 class FloatingTransport(MaterialSurface):
     recordRequested = Signal()
     pauseRequested = Signal()
@@ -135,7 +168,11 @@ class FloatingTransport(MaterialSurface):
     def __init__(self, parent=None):
         super().__init__("floating", parent)
         self._background = QImage()
-        self._reduce_transparency = os.environ.get("LUMACAPTURE_REDUCE_TRANSPARENCY", "").lower() in {"1", "true", "yes"}
+        self._reduce_transparency = os.environ.get("LUMACAPTURE_REDUCE_TRANSPARENCY", "").lower() in {
+            "1",
+            "true",
+            "yes",
+        }
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.state_value = "Ready"
         layout = QHBoxLayout(self)
@@ -168,6 +205,8 @@ class FloatingTransport(MaterialSurface):
         self.microphone.setCheckable(True)
         self.microphone.toggled.connect(self.microphoneToggled)
         layout.addWidget(self.microphone)
+        self.meter = AudioMeter(self)
+        layout.addWidget(self.meter)
         self.audio = IconButton("audio", "System audio for next recording", self)
         self.audio.setCheckable(True)
         self.audio.toggled.connect(self.audioToggled)
@@ -177,6 +216,9 @@ class FloatingTransport(MaterialSurface):
         layout.addWidget(self.inspector)
         self.set_state("Ready")
 
+    def set_audio_level(self, level: float):
+        self.meter.set_level(level)
+
     def set_background_frame(self, image):
         """Keep a bounded, low-resolution blur source derived from the live preview."""
 
@@ -184,7 +226,9 @@ class FloatingTransport(MaterialSurface):
             self._background = QImage()
         else:
             self._background = image.scaled(
-                QSize(24, 12), Qt.AspectRatioMode.IgnoreAspectRatio, Qt.TransformationMode.SmoothTransformation
+                QSize(24, 12),
+                Qt.AspectRatioMode.IgnoreAspectRatio,
+                Qt.TransformationMode.SmoothTransformation,
             )
         self.update()
 
@@ -207,13 +251,13 @@ class FloatingTransport(MaterialSurface):
         painter.end()
 
     def _record_clicked(self):
-        if self.state_value in {"Recording", "Paused"}:
+        if self.state_value in {"Preparing", "Recording", "Paused"}:
             self.stopRequested.emit()
-        elif self.state_value in {"Ready", "Error"}:
+        elif self.state_value in {"Ready", "Completed", "Error"}:
             self.recordRequested.emit()
 
     def set_state(self, state, elapsed=0):
-        active = state in {"Recording", "Paused", "Finalizing"}
+        active = state in {"Preparing", "Recording", "Paused", "Stopping", "Finalizing recording"}
         if self.state_value != state or not self.record.text():
             self.state_value = state
             self.record.setText("Stop" if active else "Record")
@@ -222,16 +266,19 @@ class FloatingTransport(MaterialSurface):
             self.record.setProperty("recording", active)
             self.record.style().unpolish(self.record)
             self.record.style().polish(self.record)
-            self.record.setToolTip("Stop and save recording (Ctrl+Shift+R)" if active else "Start recording (Ctrl+R)")
+            self.record.setToolTip(
+                "Stop and save recording (Ctrl+Shift+R)" if active else "Start recording (Ctrl+R)"
+            )
             self.record.setAccessibleName(self.record.toolTip())
             self.pause.setIcon(symbol("play" if state == "Paused" else "pause"))
             self.pause.setToolTip("Resume recording" if state == "Paused" else "Pause recording")
             self.pause.setAccessibleName(self.pause.toolTip())
-        self.record.setEnabled(state != "Finalizing")
+        self.record.setEnabled(state not in {"Stopping", "Finalizing recording"})
+        self.stop.setEnabled(state in {"Preparing", "Recording", "Paused"})
         self.pause.setEnabled(state in {"Recording", "Paused"})
         self.microphone.setEnabled(not active)
         self.audio.setEnabled(not active)
-        self.state.setText(state)
+        self.state.setText("Finalizing recording" if state == "Stopping" else state)
         h, r = divmod(max(0, int(elapsed)), 3600)
         m, s = divmod(r, 60)
         self.timer.setText(f"{h:02}:{m:02}:{s:02}")

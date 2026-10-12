@@ -22,7 +22,9 @@ FrameLink 可以录制屏幕、手机摄像头，或同时录制两者。电脑�
 
 ![左侧为原始录像，右侧为压缩录像](../assets/compression-comparison.png)
 
-**10.92 MB → 4.52 MB，体积减少 58.6%。** 这是一段实际屏幕录像，时长约 30 秒，分辨率为 1920×1080；两个文件均使用 H.264。左右两侧显示的是同一时间点（10.000 秒）的画面。压缩有损，效果取决于内容和设置。[文件、参数与比较方法](../COMPRESSION_EVIDENCE.md)。
+**12.86 MB → 6.87 MB | 节省 46.6% 空间 | H.264**
+
+一段时长 30 秒、分辨率为 1920×1080 的实际桌面录像在同一时间点（10.000 秒）的画面对比。8× 像素放大区域展示了精细文本保留情况及 DCT 编码特性。有损压缩效果取决于内容复杂度与设置。[文件、参数与比较方法](../COMPRESSION_EVIDENCE.md)。
 
 对于今后的录像，**Keep Original（保留原始文件）**默认关闭：只有较小的导出文件通过完整性和抽样画质检查后，才会删除原始文件。已有录像受到保护。[保留策略](../COMPRESSION_RETENTION.md)。
 
@@ -32,7 +34,7 @@ FrameLink 可以录制屏幕、手机摄像头，或同时录制两者。电脑�
 
 **Linux x86_64：** 为 AppImage 添加执行权限并启动，或解压 tar 包后运行 `./FrameLink/FrameLink`。Wayland 需要 PipeWire 和可用的 ScreenCast 门户。
 
-[v0.1.0 下载页](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0)提供的是旧开发版本，不包含当前修复，也不是经过完整验证的正式版本。要运行当前检出的源码，请使用 Python 3.12 或更高版本，并参阅[源码安装说明](../USER_GUIDE.md#build-from-source)。新版本发布仍需通过验证和许可证审查。本文档也涵盖尚未推送到仓库的本地应用修复。
+[v0.1.0 下载页](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0)提供的是旧开发版本，不包含当前修复，也不是经过完整验证的正式版本。要运行当前检出的源码，请使用 Python 3.12 或更高版本，并参阅[源码安装说明](../USER_GUIDE.md#build-from-source)。新版本发布仍需通过验证和许可证审查。
 
 ## 三步上手
 

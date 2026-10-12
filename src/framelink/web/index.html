@@ -1,3 +1,78 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>FrameLink Camera</title><link rel="stylesheet" href="/style.css"><script src="/camera.js" defer></script></head>
-<body><main><header><span class="brand">FrameLink</span><span class="badge" id="status">Not connected</span></header><h1>Your camera.<br>Your desktop.</h1><p class="intro">A private camera connection over your local Wi-Fi.</p><div class="preview"><video id="preview" muted autoplay playsinline></video><span id="indicator">CAMERA OFF</span></div><p id="message" role="status" aria-live="polite">Choose your camera settings, then connect. Camera permission is required.</p><div class="grid"><label>Camera<select id="facing"><option value="environment">Rear camera</option><option value="user">Front camera</option></select></label><label>Resolution<select id="resolution"><option value="1280">1280 × 720</option><option value="1920">1920 × 1080</option><option value="640">640 × 480</option><option value="3840">3840 × 2160</option></select></label><label>Frame rate<select id="fps"><option value="30">30 FPS</option><option value="60">60 FPS</option></select></label><label class="check"><input id="audio" type="checkbox">Include phone microphone</label></div><p id="actual" class="small">Actual camera settings will appear after permission is granted.</p><button id="connect" class="primary">Connect camera</button><button id="switch" disabled>Switch camera</button><button id="disconnect" disabled>Disconnect</button><footer>Keep this page open and the screen unlocked. No recording is stored on this phone. The desktop controls recording.</footer></main></body></html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>FrameLink Camera</title>
+  <link rel="stylesheet" href="/style.css">
+  <script>
+    window.framelinkTiming = {
+      clock: "performance.now",
+      marks: {t0_page_opened: performance.now()},
+      availability: {page_open: "supported"}
+    };
+  </script>
+  <script src="/quality.js"></script>
+  <script src="/recording.js" defer></script>
+  <script src="/camera.js" defer></script>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="brand">
+        <span class="logo">⚡</span> FrameLink
+      </div>
+      <span class="badge" id="status">Ready</span>
+    </header>
+
+    <div class="preview-container">
+      <div class="preview">
+        <video id="preview" muted autoplay playsinline></video>
+        <span id="indicator">CAMERA OFF</span>
+      </div>
+
+      <div class="floating-controls" id="controls" style="display: none;">
+        <button id="flip-btn" class="icon-btn" title="Flip Camera" aria-label="Flip Camera">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0-4.418-3.582-8-8-8s-8 3.582-8 8c0 2.21 1 4.21 2.6 5.6L4 20h6v-6l-2.4 2.4C6.2 15.2 5.5 13.7 5.5 12c0-3.59 2.91-6.5 6.5-6.5s6.5 2.91 6.5 6.5c0 1.7-.7 3.2-2.1 4.4l1.4 1.4C19 16.2 20 13.8 20 10z"/></svg>
+          <span>Flip</span>
+        </button>
+        <button id="torch-btn" class="icon-btn" title="Flashlight" aria-label="Flashlight" style="display: none;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span>Torch</span>
+        </button>
+        <button id="mute-btn" class="icon-btn" title="Microphone" aria-label="Microphone">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+          <span>Mic</span>
+        </button>
+        <button id="disconnect-btn" class="icon-btn danger" title="Disconnect" aria-label="Disconnect">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <span>Exit</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="connect-btn" class="primary big-btn">Start Streaming Camera</button>
+    </div>
+
+    <section id="record-panel" aria-label="Desktop recording controls">
+      <div class="record-heading">
+        <strong>Desktop recording</strong>
+        <span id="record-state">Phone disconnected</span>
+      </div>
+      <button id="record-btn" class="record-btn" disabled>Record</button>
+      <div id="record-timer" class="record-timer">00:00:00</div>
+      <div class="record-meta"><span id="record-mode">Mode: —</span><span id="record-policy">Phone disconnect: —</span></div>
+      <p id="record-error" class="record-error" role="alert" aria-live="polite"></p>
+    </section>
+
+    <p id="message" role="status" aria-live="polite">Ready to connect to FrameLink Studio.</p>
+    <p id="actual" class="small"></p>
+
+    <footer>
+      Direct, private peer-to-peer connection over local Wi-Fi.<br>
+      Keep this tab open while recording.
+    </footer>
+  </main>
+</body>
+</html>

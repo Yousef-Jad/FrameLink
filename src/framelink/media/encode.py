@@ -1,4 +1,5 @@
 from fractions import Fraction
+import os
 from pathlib import Path
 import time
 import av
@@ -69,29 +70,55 @@ class MediaWriter:
         preset="veryfast",
         audio_bitrate=128000,
         bitrate=None,
+        fragmented=False,
+        realtime=True,
+        video_time_base=None,
     ):
         self.path = path
         self.width, self.height = width, height
         self.fps = fps
+        self.video_time_base = video_time_base or Fraction(1, fps)
         self.closed = False
+        self._telemetry = {
+            "video_calls": 0,
+            "packets": 0,
+            "conversion_ms": 0.0,
+            "encode_ms": 0.0,
+            "mux_ms": 0.0,
+            "disk_flush_ms": 0.0,
+            "source_fps": None,
+        }
         self.container = av.open(
             str(path),
             "w",
             format="mp4" if path.suffix == ".mp4" else "matroska",
-            options={"movflags": "+faststart"}
+            options=(
+                {
+                    "movflags": "+frag_keyframe+empty_moov+default_base_moof",
+                    "frag_duration": "1000000",
+                    "flush_packets": "1",
+                }
+                if fragmented
+                else {"movflags": "+faststart"}
+            )
             if path.suffix == ".mp4"
             else {"cluster_time_limit": "1000", "flush_packets": "1"},
         )
         self.video = self.container.add_stream(encoder, rate=fps)
         self.video.width, self.video.height = width, height
         self.video.pix_fmt = "yuv420p"
-        self.video.time_base = Fraction(1, fps)
+        self.video.time_base = self.video_time_base
+        self.video.codec_context.time_base = self.video_time_base
         self.video.codec_context.thread_count = 2
         self.video.options = encoder_options(encoder, quality, preset)
+        if not realtime and encoder == "libx264":
+            options = dict(self.video.options)
+            options.pop("tune", None)
+            self.video.options = options
         if bitrate:
             self.video.options.pop("crf", None)
             self.video.bit_rate = bitrate
-        self.video.codec_context.gop_size = fps
+        self.video.codec_context.gop_size = fps if realtime else fps * 10
         self.audio = self.container.add_stream("aac", rate=48000) if audio else None
         if self.audio:
             self.audio.layout = "stereo"
@@ -104,11 +131,23 @@ class MediaWriter:
             raise
 
     def write_video(self, rgb, pts):
+        conversion_start = time.perf_counter()
         frame = av.VideoFrame.from_ndarray(rgb, format="rgb24")
         frame.pts = pts
-        frame.time_base = Fraction(1, self.fps)
-        for packet in self.video.encode(frame):
+        frame.time_base = self.video_time_base
+        self._telemetry["conversion_ms"] += (time.perf_counter() - conversion_start) * 1000
+        encode_start = time.perf_counter()
+        packets = self.video.encode(frame)
+        self._telemetry["encode_ms"] += (time.perf_counter() - encode_start) * 1000
+        mux_start = time.perf_counter()
+        for packet in packets:
             self.container.mux(packet)
+        self._telemetry["mux_ms"] += (time.perf_counter() - mux_start) * 1000
+        self._telemetry["video_calls"] += 1
+        self._telemetry["packets"] += len(packets)
+
+    def telemetry_snapshot(self):
+        return dict(self._telemetry)
 
     def write_audio(self, samples, pts):
         if self.audio is None or not samples.shape[1]:
@@ -127,13 +166,23 @@ class MediaWriter:
             return
         self.closed = True
         try:
-            for packet in self.video.encode():
+            encode_start = time.perf_counter()
+            packets = self.video.encode()
+            self._telemetry["encode_ms"] += (time.perf_counter() - encode_start) * 1000
+            mux_start = time.perf_counter()
+            for packet in packets:
                 self.container.mux(packet)
+            self._telemetry["mux_ms"] += (time.perf_counter() - mux_start) * 1000
+            self._telemetry["packets"] += len(packets)
             if self.audio:
                 for packet in self.audio.encode():
                     self.container.mux(packet)
         finally:
             self.container.close()
+            flush_start = time.perf_counter()
+            with self.path.open("r+b") as handle:
+                os.fsync(handle.fileno())
+            self._telemetry["disk_flush_ms"] += (time.perf_counter() - flush_start) * 1000
 
 
 def inspect_media(path, full=False):
@@ -157,6 +206,8 @@ def inspect_media(path, full=False):
             starts = {}
             for packet in container.demux():
                 for frame in packet.decode():
+                    if frame.is_corrupt:
+                        raise ValueError("Media contains a corrupt decoded frame")
                     counts[packet.stream.index] = counts.get(packet.stream.index, 0) + 1
                     if frame.pts is not None:
                         stamp = float(frame.pts * frame.time_base)
@@ -176,6 +227,10 @@ def inspect_media(path, full=False):
                 a = container.streams.audio[0].index
                 if abs(ends.get(a, 0) - ends.get(v.index, 0)) > 0.3:
                     raise ValueError("Audio and video end times differ by more than 300 ms")
+                result["audio_start"] = starts[a]
+                result["audio_end"] = ends[a]
+                result["video_start"] = starts[v.index]
+                result["video_end"] = ends[v.index]
             result["stream_starts"] = starts
         return result
 

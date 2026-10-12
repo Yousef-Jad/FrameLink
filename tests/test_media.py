@@ -11,7 +11,7 @@ from framelink.media.buffers import Sources
 from framelink.compression.queue import compress, CompressionSettings, CompressionQueue, Cancelled
 from framelink.recording.engine import Recorder, recover_recordings
 from framelink.storage.library import Library
-from conftest import wait_until
+from conftest import feed_video, wait_until
 
 
 @pytest.mark.integration
@@ -45,7 +45,9 @@ def test_advanced_compression_streams(media_file, tmp_path, encoder, codec):
 
     if encoder not in av.codecs_available:
         pytest.skip(f"{encoder} not included in this platform's FFmpeg build")
-    result = compress(media_file, tmp_path / "advanced.mp4", CompressionSettings(codec=encoder, preset="fast"))
+    result = compress(
+        media_file, tmp_path / "advanced.mp4", CompressionSettings(codec=encoder, preset="fast")
+    )
     assert result["codec"] == codec and result["audio"]
     assert result["decoded_frames"] == 45
     assert result["duration"] == pytest.approx(1.5, abs=0.1)
@@ -68,27 +70,32 @@ def test_recording_modes_pause_and_library(tmp_path, mode, layout, count):
     rgb = np.full((180, 320, 3), 80, np.uint8)
     sources.screen.put(rgb)
     sources.phone.put(rgb)
+    feeder_stop, feeder_thread = feed_video(sources, fps=60)
     library = Library(tmp_path / "library")
     recorder = Recorder(sources, library, tmp_path / "videos")
-    recorder.start(RecordingConfig(mode=mode, layout=layout))
-    wait_until(lambda: recorder.metrics["encoded"] >= 5)
-    recorder.pause()
-    paused = recorder.clock.elapsed()
-    time.sleep(0.15)
-    assert recorder.clock.elapsed() == paused
-    recorder.resume()
-    wait_until(lambda: recorder.metrics["encoded"] >= 12)
-    recorder.stop()
-    recorder.thread.join(15)
-    assert recorder.state == State.IDLE, recorder.error
-    items = library.recordings()
-    assert len(items) == count
-    for item in items:
-        assert Path(item["path"]).is_file()
-        validate_media(item["path"], audio=False)
-    if count == 2:
-        assert items[0]["session"] == items[1]["session"]
-        assert abs(items[0]["metadata"]["duration"] - items[1]["metadata"]["duration"]) < 0.04
+    try:
+        recorder.start(RecordingConfig(mode=mode, layout=layout))
+        wait_until(lambda: recorder.metrics["encoded"] >= 5)
+        recorder.pause()
+        paused = recorder.clock.elapsed()
+        time.sleep(0.15)
+        assert recorder.clock.elapsed() == paused
+        recorder.resume()
+        wait_until(lambda: recorder.metrics["encoded"] >= 12)
+        recorder.stop()
+        recorder.thread.join(15)
+        assert recorder.state == State.COMPLETED, recorder.error
+        items = library.recordings()
+        assert len(items) == count
+        for item in items:
+            assert Path(item["path"]).is_file()
+            validate_media(item["path"], audio=False)
+        if count == 2:
+            assert items[0]["session"] == items[1]["session"]
+            assert abs(items[0]["metadata"]["duration"] - items[1]["metadata"]["duration"]) < 0.04
+    finally:
+        feeder_stop.set()
+        feeder_thread.join(2)
 
 
 @pytest.mark.integration
@@ -96,17 +103,27 @@ def test_phone_disconnection_pause_and_resume(tmp_path):
     sources = Sources()
     sources.screen.put(np.zeros((180, 320, 3), np.uint8))
     sources.phone.put(np.ones((180, 320, 3), np.uint8))
+    screen_stop, screen_thread = feed_video(sources, names=("screen",), fps=30)
+    phone_stop, phone_thread = feed_video(sources, names=("phone",), fps=30)
     recorder = Recorder(sources, Library(tmp_path / "library"), tmp_path / "video")
-    recorder.start(RecordingConfig(mode="both", disconnect_policy="pause"))
-    wait_until(lambda: recorder.metrics["encoded"] >= 4)
-    sources.phone.clear()
-    wait_until(lambda: recorder.state == State.PAUSED)
-    sources.phone.put(np.ones((180, 320, 3), np.uint8))
-    recorder.resume()
-    wait_until(lambda: recorder.metrics["encoded"] >= 8)
-    recorder.stop()
-    recorder.thread.join(15)
-    assert recorder.state == State.IDLE
+    try:
+        recorder.start(RecordingConfig(mode="both", disconnect_policy="pause"))
+        wait_until(lambda: recorder.metrics["encoded"] >= 4)
+        phone_stop.set()
+        phone_thread.join(2)
+        sources.phone.clear()
+        wait_until(lambda: recorder.state == State.PAUSED)
+        phone_stop, phone_thread = feed_video(sources, names=("phone",), fps=30)
+        recorder.resume()
+        wait_until(lambda: recorder.metrics["encoded"] >= 8)
+        recorder.stop()
+        recorder.thread.join(15)
+        assert recorder.state == State.COMPLETED
+    finally:
+        screen_stop.set()
+        phone_stop.set()
+        screen_thread.join(2)
+        phone_thread.join(2)
 
 
 @pytest.mark.integration
@@ -175,16 +192,20 @@ def test_encoder_initialization_falls_back_to_real_software(tmp_path, monkeypatc
 
     monkeypatch.setattr(module, "MediaWriter", writer)
     sources = Sources()
-    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    feeder_stop, feeder_thread = feed_video(sources, names=("screen",), fps=30)
     library = Library(tmp_path / "library")
     recorder = Recorder(sources, library, tmp_path / "recordings")
-    recorder.start(RecordingConfig(encoder="h264_nvenc"))
-    wait_until(lambda: recorder.metrics["encoded"] >= 6)
-    recorder.stop()
-    recorder.thread.join(10)
-    assert recorder.state == State.IDLE, recorder.error
-    assert recorder.metrics["encoder"] == "libx264"
-    validate_media(library.recordings()[0]["path"])
+    try:
+        recorder.start(RecordingConfig(encoder="h264_nvenc"))
+        wait_until(lambda: recorder.metrics["encoded"] >= 6)
+        recorder.stop()
+        recorder.thread.join(10)
+        assert recorder.state == State.COMPLETED, recorder.error
+        assert recorder.metrics["encoder"] == "libx264"
+        validate_media(library.recordings()[0]["path"])
+    finally:
+        feeder_stop.set()
+        feeder_thread.join(2)
 
 
 @pytest.mark.integration
@@ -193,7 +214,7 @@ def test_recording_audio_mixer_writes_actual_samples(tmp_path):
     import threading
 
     sources = Sources()
-    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    feeder_stop, feeder_thread = feed_video(sources, names=("screen",), fps=30)
     done = threading.Event()
 
     def feed_audio():
@@ -215,7 +236,7 @@ def test_recording_audio_mixer_writes_actual_samples(tmp_path):
         wait_until(lambda: recorder.metrics["encoded"] >= 25)
         recorder.stop()
         recorder.thread.join(10)
-        assert recorder.state == State.IDLE, recorder.error
+        assert recorder.state == State.COMPLETED, recorder.error
         path = library.recordings()[0]["path"]
         validate_media(path, audio=True)
         with av.open(path) as container:
@@ -224,13 +245,17 @@ def test_recording_audio_mixer_writes_actual_samples(tmp_path):
     finally:
         done.set()
         producer.join()
+        feeder_stop.set()
+        feeder_thread.join(2)
         recorder.stop()
         if recorder.thread:
             recorder.thread.join(10)
 
 
 @pytest.mark.integration
-def test_actual_process_interruption_recovery(tmp_path):
+@pytest.mark.parametrize("suffix", ["mkv", "mp4"])
+@pytest.mark.parametrize("audio", [False, True])
+def test_actual_process_interruption_recovery(tmp_path, suffix, audio):
     import sys
 
     script = r"""
@@ -239,15 +264,17 @@ from pathlib import Path
 import numpy as np
 from framelink.media.encode import MediaWriter
 path=Path(sys.argv[1])
-writer=MediaWriter(path,320,180,30)
+audio=sys.argv[2]=="True"
+writer=MediaWriter(path,320,180,30,audio=audio,fragmented=path.suffix==".mp4")
 for i in range(1000):
     writer.write_video(np.full((180,320,3),i%255,np.uint8),i)
+    if audio: writer.write_audio(np.zeros((2,1600),np.float32),i*1600)
     if i==95: print("ready",flush=True)
     time.sleep(.005)
 """
-    partial = tmp_path / "FrameLink-killed.partial.mkv"
+    partial = tmp_path / f"FrameLink-killed.partial.{suffix}"
     process = subprocess.Popen(
-        [sys.executable, "-c", script, str(partial)], stdout=subprocess.PIPE, text=True
+        [sys.executable, "-c", script, str(partial), str(audio)], stdout=subprocess.PIPE, text=True
     )
     try:
         assert process.stdout.readline().strip() == "ready"
@@ -258,14 +285,34 @@ for i in range(1000):
     recovered, failures = recover_recordings(tmp_path, library)
     assert recovered and not failures, failures
     assert partial.exists()
+    assert Path(library.recordings()[0]["path"]).suffix == ".mp4"
     assert validate_media(library.recordings()[0]["path"])["decoded_frames"] > 20
+    assert validate_media(library.recordings()[0]["path"])["audio"] == audio
+
+
+def test_mp4_recovery_ignores_exports_and_indexes_orphan_original(tmp_path):
+    from framelink.media.encode import MediaWriter
+
+    original = tmp_path / "FrameLink-orphan.mp4"
+    writer = MediaWriter(original, 320, 180, 30, fragmented=True)
+    for pts in range(30):
+        writer.write_video(np.full((180, 320, 3), pts, np.uint8), pts)
+    writer.close()
+    export = tmp_path / "FrameLink-orphan-export-test.partial.mp4"
+    shutil.copyfile(original, export)
+    library = Library(tmp_path / "library")
+    recovered, failures = recover_recordings(tmp_path, library)
+    assert len(recovered) == 1 and not failures
+    assert Path(library.recordings()[0]["path"]) == original
+    assert not recover_recordings(tmp_path, library)[0]
+    assert export.exists()
 
 
 def test_audio_intervals_remain_contiguous_under_encoder_jitter(tmp_path, monkeypatch):
     from framelink.media.encode import MediaWriter
 
     sources = Sources()
-    sources.screen.put(np.zeros((180, 320, 3), np.uint8))
+    feeder_stop, feeder_thread = feed_video(sources, names=("screen",), fps=30)
     intervals = []
     original_read = sources.audio["mic"].read
     original_write = MediaWriter.write_video
@@ -287,6 +334,8 @@ def test_audio_intervals_remain_contiguous_under_encoder_jitter(tmp_path, monkey
     finally:
         recorder.stop()
         recorder.thread.join(10)
-    assert recorder.state == State.IDLE, recorder.error
+        feeder_stop.set()
+        feeder_thread.join(2)
+    assert recorder.state == State.COMPLETED, recorder.error
     for (start, count), (following, _) in zip(intervals, intervals[1:]):
         assert following == pytest.approx(start + count / 48000, abs=1 / 48000, rel=0)

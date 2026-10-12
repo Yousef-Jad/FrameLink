@@ -21,15 +21,20 @@ def inventory(target):
             continue
         seen.add(name)
         dist = metadata.distribution(name)
-        dependencies.append({
-            "name": dist.metadata["Name"],
-            "version": dist.version,
-            "declared_license": dist.metadata.get("License-Expression") or dist.metadata.get("License"),
-            "project_urls": dist.metadata.get_all("Project-URL", []),
-            "notice_files": [str(f) for f in dist.files or [] if any(
-                term in str(f).lower() for term in ("license", "copyright", "sbom", "notice")
-            ) and str(f).endswith((".txt", ".md", ".json", "LICENSE", "COPYING", "NOTICE"))],
-        })
+        dependencies.append(
+            {
+                "name": dist.metadata["Name"],
+                "version": dist.version,
+                "declared_license": dist.metadata.get("License-Expression") or dist.metadata.get("License"),
+                "project_urls": dist.metadata.get_all("Project-URL", []),
+                "notice_files": [
+                    str(f)
+                    for f in dist.files or []
+                    if any(term in str(f).lower() for term in ("license", "copyright", "sbom", "notice"))
+                    and str(f).endswith((".txt", ".md", ".json", "LICENSE", "COPYING", "NOTICE"))
+                ],
+            }
+        )
         for value in dist.requires or []:
             requirement = Requirement(value)
             if requirement.marker is None or requirement.marker.evaluate({"extra": ""}):
@@ -39,7 +44,9 @@ def inventory(target):
         if path.is_file() and (".so" in path.name or path.suffix.lower() in {".dll", ".exe", ".pyd"}):
             with path.open("rb") as handle:
                 digest = hashlib.file_digest(handle, "sha256").hexdigest()
-            files.append({"path": path.relative_to(target).as_posix(), "size": path.stat().st_size, "sha256": digest})
+            files.append(
+                {"path": path.relative_to(target).as_posix(), "size": path.stat().st_size, "sha256": digest}
+            )
     import av
 
     return {

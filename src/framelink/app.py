@@ -62,8 +62,8 @@ def main():
 
             try:
                 with tempfile.TemporaryDirectory() as tmp:
-                    path = Path(tmp) / "runtime.mkv"
-                    writer = MediaWriter(path, 320, 180, 30)
+                    path = Path(tmp) / "runtime.mp4"
+                    writer = MediaWriter(path, 320, 180, 30, fragmented=True)
                     for i in range(30):
                         writer.write_video(np.full((180, 320, 3), i * 5, np.uint8), i)
                     writer.close()
@@ -80,7 +80,8 @@ def main():
         window.output = args.capture_test
         window.recorder.output = args.capture_test
         window.library.set_setting("auto_compress", False)
-        window.toggle_preview()
+        if not window.desktop.active:
+            window.toggle_preview()
         started = [False]
         deadline = __import__("time").monotonic() + 90
         test_timer = QTimer(window)
@@ -102,7 +103,7 @@ def main():
                 started[0]
                 and not window.benchmark_running
                 and window.recorder.clock is not None
-                and window.recorder.state in {State.IDLE, State.ERROR}
+                and window.recorder.state in {State.COMPLETED, State.ERROR}
             ):
                 test_timer.stop()
                 print(
