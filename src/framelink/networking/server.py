@@ -56,6 +56,7 @@ class PhoneServer:
         self.bitrate = 0
         self.metrics = self._new_metrics()
         self.preview_ack_sent = False
+        self._video_connected_since = None
         self.pending_status = "awaiting-video"
         self.ice_diagnostics = {
             "remote_candidates": [],
@@ -84,6 +85,9 @@ class PhoneServer:
             "packets_received": 0,
             "frames_received": 0,
             "frames_decoded": 0,
+            "frames_buffered": 0,
+            "frames_displayed": 0,
+            "last_preview_time": 0.0,
             "fps": 0.0,
             "width": 0,
             "height": 0,
@@ -253,6 +257,12 @@ class PhoneServer:
                     "receiver_packets_lost",
                     "frames_received",
                     "frames_decoded",
+                    "frames_buffered",
+                    "frames_displayed",
+                    "last_frame_time",
+                    "last_preview_time",
+                    "video_frame_age_seconds",
+                    "camera_lifecycle",
                     "first_preview_displayed_monotonic",
                 )
             },
@@ -533,6 +543,7 @@ class PhoneServer:
         self.peer = pc
         self.metrics = self._new_metrics()
         self.preview_ack_sent = False
+        self._video_connected_since = None
         self.pending_status = "awaiting-video"
         self.state = "WebRTC negotiating"
         self.notify("phone", self.state)
@@ -567,6 +578,14 @@ class PhoneServer:
                     report = json.loads(message)
                     if isinstance(report, dict) and report.get("type") == "recording-command":
                         asyncio.create_task(self._handle_recording_command(report, channel, pc))
+                        return
+                    if isinstance(report, dict) and report.get("type") == "camera-lifecycle":
+                        self.metrics["camera_lifecycle"] = {
+                            key: report.get(key) for key in (
+                                "ready_state", "muted", "enabled", "peer_state", "ice_state",
+                                "restarts", "reconnects", "hidden", "mute_events", "unmute_events", "ended_events",
+                            )
+                        }
                         return
                     if isinstance(report, dict) and report.get("type") == "ice-diagnostics":
                         self.ice_diagnostics.update(
@@ -681,6 +700,8 @@ class PhoneServer:
         try:
             while self.peer is peer:
                 frame = await track.recv()
+                if self.peer is not peer:
+                    break
                 arrival = time.monotonic()
                 stamp = normalizer.map(float(frame.time or 0), arrival)
                 if track.kind == "video":
@@ -690,8 +711,11 @@ class PhoneServer:
                         continue
                     rgb = await asyncio.to_thread(frame.to_ndarray, format="rgb24")
                     decoded_at = time.monotonic()
+                    if self.peer is not peer:
+                        break
                     self.sources.phone.put(rgb, stamp)
                     self.sources.phone_preview.put(rgb, stamp)
+                    self.metrics["frames_buffered"] += 1
                     self.metrics["frames_received"] += 1
                     self.metrics["frames_decoded"] += 1
                     self.metrics["width"] = frame.width
@@ -704,6 +728,8 @@ class PhoneServer:
                         self.metrics["fps"] = frame_count / elapsed
                         frame_count = 0
                         fps_start = arrival
+                    if self.pending_status == "video-stalled":
+                        self._send_status("video-received")
                     if first_frame:
                         first_frame = False
                         self.metrics["first_frame_decoded_monotonic"] = decoded_at
@@ -756,6 +782,10 @@ class PhoneServer:
 
     def _mark_preview_displayed(self, sequence):
         """Mutate preview timing state on the server's asyncio thread."""
+        if sequence != self.metrics.get("last_preview_sequence"):
+            self.metrics["frames_displayed"] = self.metrics.get("frames_displayed", 0) + 1
+            self.metrics["last_preview_sequence"] = sequence
+            self.metrics["last_preview_time"] = time.monotonic()
         if self.metrics.get("first_preview_displayed_monotonic") is not None:
             return False
         if self.metrics.get("first_frame_sequence") is None:
@@ -768,6 +798,20 @@ class PhoneServer:
             self.loop.call_soon_threadsafe(self._send_status, "preview-ready")
         return True
 
+    def _check_video_stall(self, now):
+        if not self.peer or self.peer.connectionState != "connected":
+            self._video_connected_since = None
+            return
+        if getattr(self, "_video_connected_since", None) is None:
+            self._video_connected_since = now
+        last = self.metrics.get("last_frame_time") or self._video_connected_since
+        self.metrics["video_frame_age_seconds"] = max(0, now - last)
+        if now - last > 5 and self.pending_status != "video-stalled":
+            self.state = "Video stalled · awaiting camera frames"
+            self.metrics["video_stalls"] = self.metrics.get("video_stalls", 0) + 1
+            self._send_status("video-stalled")
+            self.notify("phone", self.state)
+
     async def _heartbeat(self):
         previous = 0
         connect_time = None
@@ -776,6 +820,7 @@ class PhoneServer:
             now = time.monotonic()
             if self.session_secret and now > self.session_expiry:
                 await self._disconnect()
+            self._check_video_stall(now)
             if self.channel and self.channel.readyState == "open":
                 try:
                     self.channel.send(
@@ -811,17 +856,18 @@ class PhoneServer:
                     elif now - connect_time > 5 and self.metrics.get("frames_received", 0) == 0:
                         diagnostics = self.network_diagnostics()
                         self.ice_diagnostics["failure_reason"] = (
-                            f"connected without RTP; ICE={self.ice_diagnostics.get('ice_connection_state')} "
+                            f"connected without decoded video; packets={self.metrics.get('packets_received', 0)}; ICE={self.ice_diagnostics.get('ice_connection_state')} "
                             f"DTLS={self.ice_diagnostics.get('dtls_state')} "
                             f"pair={self.ice_diagnostics.get('selected_pair')}"
                         )
                         self.notify(
                             "warning",
-                            "Camera is open, but video has not reached your computer. "
+                            "No decoded camera video is arriving. "
                             f"ICE={self.ice_diagnostics.get('ice_connection_state')}, "
                             f"DTLS={self.ice_diagnostics.get('dtls_state')}. "
-                            f"Check the active interface {diagnostics.get('interface') or 'selection'} "
-                            "and narrowly allow local UDP in the firewall.",
+                            f"Video RTP packets={self.metrics.get('packets_received', 0)}; "
+                            f"interface={diagnostics.get('interface') or 'selection'}. "
+                            "Compare camera-track, RTP and decoder diagnostics before changing network settings.",
                         )
                 else:
                     connect_time = None

@@ -183,6 +183,12 @@ function getCameraConstraints() {
   };
 }
 
+const cameraDiagnostics = {restarts: 0, reconnects: 0, muted: false, muteEvents: 0, unmuteEvents: 0, endedEvents: 0, lastDesktopVideo: 0};
+
+function cameraUsable() {
+  return stream?.getVideoTracks().some(t => t.readyState === "live");
+}
+
 async function acquireCamera() {
   if (!window.isSecureContext || !navigator.mediaDevices?.getUserMedia) {
     throw new Error("Camera requires trusted HTTPS. Complete desktop certificate setup and reopen.");
@@ -224,12 +230,16 @@ async function acquireCamera() {
   if (actualEl) {
     actualEl.textContent = `${settings.width || "?"} × ${settings.height || "?"} · ${Math.round(settings.frameRate || 30)} FPS`;
   }
-  updateIndicator("CAMERA LIVE", "active");
+  updateIndicator("CAMERA ACTIVE · WAITING FOR DESKTOP", "connecting");
+  cameraDiagnostics.restarts++;
+  vTrack.onmute = () => { cameraDiagnostics.muted = true; cameraDiagnostics.muteEvents++; };
+  vTrack.onunmute = () => { cameraDiagnostics.muted = false; cameraDiagnostics.unmuteEvents++; };
 
   // Check torch capability
   checkTorchSupport(vTrack);
 
   vTrack.onended = () => {
+    cameraDiagnostics.endedEvents++;
     if (!stopped) {
       message("Camera access ended. Reconnecting…");
       scheduleReconnect();
@@ -402,6 +412,8 @@ function scheduleReconnect() {
     busy = true;
     let failed = false;
     try {
+      if (!cameraUsable()) await acquireCamera();
+      cameraDiagnostics.reconnects++;
       await negotiate();
     } catch (e) {
       failed = true;
@@ -423,7 +435,12 @@ window.framelinkHandleServerMessage = data => {
   }
   const isRec = data.recording === "Recording";
   const ready = data.status === "video-received" || data.status === "preview-ready";
-  const isLive = ready || isRec;
+  const isLive = ready;
+  if (ready) cameraDiagnostics.lastDesktopVideo = Date.now();
+  if (data.status === "video-stalled") {
+    message("Desktop video stalled. Reconnecting with the existing camera…");
+    scheduleReconnect();
+  }
   updateIndicator(isRec ? "RECORDING ON DESKTOP" : isLive ? "LIVE TO STUDIO" : "CONNECTED · WAITING FOR VIDEO", isRec ? "recording" : isLive ? "active" : "connecting");
   status(isRec ? "Recording active" : isLive ? "Live to Studio" : "Connected · awaiting video", isRec ? "recording" : isLive ? "connected" : "connecting");
   if (ready) message("Connected! Streaming video directly to FrameLink Studio.");
@@ -545,9 +562,21 @@ document.addEventListener("visibilitychange", () => {
 });
 
 setInterval(() => {
+  if (!stopped && pc) {
+    const track = stream?.getVideoTracks()[0];
+    const channel = window.framelinkRecording?.channel;
+    const report = {type: "camera-lifecycle", ready_state: track?.readyState || "missing",
+      muted: !!track?.muted, enabled: !!track?.enabled, peer_state: pc.connectionState,
+      ice_state: pc.iceConnectionState, restarts: cameraDiagnostics.restarts,
+      reconnects: cameraDiagnostics.reconnects, mute_events: cameraDiagnostics.muteEvents,
+      unmute_events: cameraDiagnostics.unmuteEvents, ended_events: cameraDiagnostics.endedEvents,
+      hidden: document.hidden};
+    if (channel?.readyState === "open") channel.send(JSON.stringify(report));
+  }
   if (!stopped && heartbeat && Date.now() - heartbeat > 20000) {
-    disconnect();
-    message("Desktop connection timed out. Scan a new QR code to reconnect.");
+    status("Reconnecting…", "connecting");
+    message("Desktop heartbeat delayed. Retrying the existing pairing session…");
+    scheduleReconnect();
   }
 }, 2500);
 

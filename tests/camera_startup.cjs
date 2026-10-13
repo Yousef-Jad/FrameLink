@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 
 const listeners = {};
+const intervals = [];
 const storage = new Map();
 const elements = new Map([
   ['status', {textContent: '', className: ''}],
@@ -29,7 +30,7 @@ const context = {
     removeItem: key => storage.delete(key),
   },
   performance: {now: (() => { let value = 100; return () => value++; })()},
-  setInterval: () => 1,
+  setInterval: fn => { intervals.push(fn); return intervals.length; },
   clearInterval: () => {},
   setTimeout,
   clearTimeout,
@@ -73,3 +74,25 @@ assert.equal(elements.get('status').textContent, 'Live to Studio');
   assert.equal(result.availability, 'unavailable-timeout');
   console.log('Camera startup timing API passed');
 })().catch(error => { console.error(error); process.exitCode = 1; });
+
+// Recording status alone must never invent a desktop video acknowledgment.
+context.__handleServerMessage({status: 'awaiting-video', recording: 'Recording'});
+assert.doesNotMatch(elements.get('indicator').textContent, /LIVE TO STUDIO/);
+const cameraSource = fs.readFileSync('src/framelink/web/camera.js', 'utf8');
+assert.doesNotMatch(cameraSource, /disconnect\(\);\s*message\("Desktop connection timed out/);
+assert.match(cameraSource, /if \(!cameraUsable\(\)\) await acquireCamera\(\)/);
+
+// A missing desktop heartbeat preserves both authorization and the live camera.
+vm.runInContext(`
+ stopped = false; heartbeat = Date.now() - 25000; session = "existing-session";
+ stream = {getVideoTracks: () => [{readyState: "live", muted: false, enabled: true}]};
+ pc = {connectionState: "connected", iceConnectionState: "connected"};
+`, context);
+const realTimeout = context.setTimeout;
+context.setTimeout = () => 123;
+intervals.at(-1)();
+assert.equal(vm.runInContext('session', context), 'existing-session');
+assert.equal(vm.runInContext('stopped', context), false);
+assert.equal(vm.runInContext('cameraUsable()', context), true);
+assert.equal(vm.runInContext('reconnectTimer', context), 123);
+context.setTimeout = realTimeout;

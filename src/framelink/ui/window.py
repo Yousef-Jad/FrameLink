@@ -258,6 +258,10 @@ class MainWindow(QMainWindow):
         return self.phone_recording_snapshot
 
     def recording_can_start(self):
+        if self.mode in {"phone", "both"}:
+            sample = self.sources.phone.latest()
+            if sample is None or time.monotonic() - sample.timestamp > 3:
+                return False
         state = self.recorder.state
         worker_finishing = (
             state in {State.COMPLETED, State.ERROR}

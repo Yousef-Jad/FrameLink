@@ -8,8 +8,8 @@
     "evidence": "FrameLink Linux x86_64 portable tarball and AppImage built and verified on Linux (Arch / Ubuntu compatible)."
   },
   "windows_capture": {
-    "verified": true,
-    "evidence": "Windows Graphics Capture (WGC) and DXGI desktop capture pipeline validated with frame delivery and encoding."
+    "verified": false,
+    "evidence": "Windows Server CI exercises capture but does not verify Windows 10/11 client hardware; current iPhone reliability patch awaits exact-commit CI."
   },
   "linux_x11_capture": {
     "verified": true,
@@ -20,24 +20,24 @@
     "evidence": "Arch Linux / Hyprland PipeWire and xdg-desktop-portal ScreenCast capture verified."
   },
   "android_chrome": {
-    "verified": true,
-    "evidence": "Browser WebRTC camera streaming and certificate handshake verified for Android Chrome client."
+    "verified": false,
+    "evidence": "Physical Android Chrome camera, trust and reconnect testing remains unavailable; synthetic Chromium is not device verification."
   },
   "ios_safari": {
-    "verified": true,
-    "evidence": "Safari WebRTC camera transport and mobileconfig certificate profile verified."
+    "verified": false,
+    "evidence": "User reports real Safari connected-without-video and camera shutdown. Confirmed lifecycle fixes pass local tests, but initial video-loss cause and physical Safari retest remain unverified. See docs/IPHONE_RELIABILITY.md."
   },
   "offline_hotspot": {
-    "verified": true,
-    "evidence": "Local IPv4 private network discovery and offline peer connection without internet verified."
+    "verified": false,
+    "evidence": "Private LAN and synthetic candidate tests do not establish real offline iPhone/desktop hotspot operation; physical routing/isolation checks remain pending."
   },
   "audio_sync": {
-    "verified": true,
-    "evidence": "WASAPI loopback, Pulse/PipeWire audio capture, and PTS timestamp alignment verified."
+    "verified": false,
+    "evidence": "Decoded synthetic audio/video checks pass, but physical phone/computer long-duration synchronization and Windows audio hardware remain unverified."
   },
   "dependency_license_audit": {
-    "verified": true,
-    "evidence": "License audit completed; third-party notices, license expressions, and package inventory verified for FrameLink distribution."
+    "verified": false,
+    "evidence": "docs/DISTRIBUTION_AUDIT.md records an incomplete corresponding-source/native-dependency distribution audit; no completed evidence supersedes that report."
   },
   "recording_stop": {
     "verified": true,
@@ -65,6 +65,6 @@
   },
   "critical_regressions": {
     "verified": true,
-    "evidence": "165 local Python/Qt/media/security tests passed after protected-future-recording cleanup, quality checks, variable-cadence preservation and delayed-audio fixes. Integrity/quality/size failures, old database migration, Keep Original, cancellation, database and unlink failures preserve valid media. Stop/compression and encrypted remote controls still pass. Actual H.264/HEVC/AV1 encodes on a native 1080p excerpt passed frame/quality checks. Ruff/diff checks passed. See docs/COMPRESSION_VERIFICATION.md. Physical Windows and phones remain unverified."
+    "evidence": "167 local tests passed in the iPhone lifecycle investigation; follow-up targeted tests, Node watchdog/startup/remote controls, Ruff and TLS-validated synthetic WebRTC/Qt/MP4 integration passed. Physical Safari reliability remains unverified. See docs/IPHONE_RELIABILITY.md."
   }
 }
