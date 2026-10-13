@@ -38,7 +38,7 @@ Qt documents its Wayland screen capture as experimental. The target display is s
 
 ## Installation
 
-The public [v0.1.0 release](https://github.com/Yousef-Jad/FrameLink/releases/tag/v0.1.0) contains older portable builds. These are not the current working-tree implementation or a verified production release. New binary publication is blocked until the [release gates](release-verification.json), including dependency licensing, pass. Build from source to use the current checkout. A successful CI build alone is not release approval.
+The v0.1.0 and v0.1.1 releases and their download assets were withdrawn at the user’s request. No public binaries are currently available. Use the source instructions below; new publication remains blocked until the [release gates](release-verification.json), including physical-device and dependency licensing checks, pass. The portable package instructions describe local candidates, not available downloads.
 
 ### Windows
 

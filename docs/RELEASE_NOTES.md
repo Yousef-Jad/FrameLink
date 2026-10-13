@@ -1,4 +1,6 @@
-# FrameLink v0.1.1
+# FrameLink v0.1.1 — withdrawn
+
+Both v0.1.0 and v0.1.1 GitHub releases and their downloadable assets have been removed at the user’s request. The notes below are retained as history; no new binary release is available.
 
 ## Post-release verification notice
 

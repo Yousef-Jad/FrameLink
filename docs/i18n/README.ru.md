@@ -30,11 +30,9 @@ FrameLink записывает экран, камеру телефона или 
 
 ## Установка
 
-**Windows 10/11 x64:** распакуйте ZIP для Windows и запустите `FrameLink/FrameLink.exe`.
+Старые загрузки для Windows и Linux отозваны. Используйте Python 3.12+ и [инструкции по установке из исходников](../USER_GUIDE.md#build-from-source) для Windows 10/11 x64 или Linux x86_64. Для Wayland нужны PipeWire и работающий портал ScreenCast.
 
-**Linux x86_64:** разрешите выполнение AppImage и запустите его либо распакуйте tar-архив и выполните `./FrameLink/FrameLink`. Для Wayland нужны PipeWire и работающий портал ScreenCast.
-
-Готовые сборки для Windows и Linux доступны на странице [Releases](https://github.com/Yousef-Jad/FrameLink/releases). Для запуска из исходного кода используйте Python 3.12+ и [инструкции по сборке](../USER_GUIDE.md#build-from-source).
+Новые сборки появятся на странице [Releases](https://github.com/Yousef-Jad/FrameLink/releases) после проверки устройств и условий распространения зависимостей.
 
 ## Быстрый старт
 

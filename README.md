@@ -30,11 +30,9 @@ For future recordings, **Keep Original** defaults to off: the original is remove
 
 ## Installation
 
-**Windows 10/11 x64:** extract the Windows ZIP and run `FrameLink/FrameLink.exe`.
+Public Windows/Linux downloads have been withdrawn. Use Python 3.12+ and the [source installation instructions](docs/USER_GUIDE.md#build-from-source) for Windows 10/11 x64 or Linux x86_64. Wayland requires PipeWire and a working ScreenCast portal.
 
-**Linux x86_64:** make the AppImage executable and launch it, or extract the tarball and run `./FrameLink/FrameLink`. Wayland needs PipeWire and a working ScreenCast portal.
-
-Download prebuilt packages for Windows and Linux from [Releases](https://github.com/Yousef-Jad/FrameLink/releases). For running from source, use Python 3.12+ and follow the [source installation instructions](docs/USER_GUIDE.md#build-from-source).
+New binaries will appear on [Releases](https://github.com/Yousef-Jad/FrameLink/releases) only after device verification and distribution licensing checks pass.
 
 ## Quick Start
 

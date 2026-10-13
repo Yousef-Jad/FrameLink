@@ -53,4 +53,4 @@ Zero-copy capture/composition, Linux compositor blur, IPv6-only pairing, and gua
 
 A versioned public release remains blocked while the required evidence manifest is incomplete.
 
-Binary CI uploads are gated on the dependency license/source audit as well as build success. Older v0.1.0 binaries remain publicly available, but do not contain the current local fixes and are not a verified production release; CI logs retain historical build evidence. See [distribution audit](DISTRIBUTION_AUDIT.md).
+Binary CI uploads are gated on the dependency license/source audit as well as build success. The older v0.1.0 and v0.1.1 releases and binary assets were withdrawn at the user’s request; CI logs retain historical build evidence. See [distribution audit](DISTRIBUTION_AUDIT.md).
