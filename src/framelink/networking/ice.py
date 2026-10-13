@@ -67,12 +67,27 @@ def _filter_candidates(sdp, selected_address, rewrite_mdns=False):
 
 def filter_remote_offer_candidates(sdp, peer_address):
     """Keep host candidates reachable from the HTTP peer and unmask mDNS."""
+    is_loopback = False
     try:
-        if ipaddress.ip_address(peer_address).is_loopback:
-            return sdp
+        is_loopback = ipaddress.ip_address(peer_address).is_loopback
     except ValueError:
         pass
-    return _filter_candidates(sdp, peer_address, rewrite_mdns=True)
+
+    lines = []
+    for line in _candidate_lines(sdp):
+        match = _CANDIDATE.match(line)
+        if not match:
+            lines.append(line)
+            continue
+        address = match.group("address")
+        if address.endswith(".local"):
+            fields = line.split()
+            fields[4] = peer_address
+            line = " ".join(fields)
+        elif not is_loopback and not _same_host(address, peer_address):
+            continue
+        lines.append(line)
+    return "\r\n".join(lines) + "\r\n"
 
 
 def filter_local_answer_candidates(sdp, selected_address):

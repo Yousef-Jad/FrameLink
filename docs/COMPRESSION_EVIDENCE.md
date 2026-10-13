@@ -1,31 +1,31 @@
 # README compression evidence
 
-Rechecked on 2026-10-12. The README uses an existing native Hyprland desktop screen recording and its matching export, not stock imagery or a simulated recording. The recorded desktop displays code diffs, git terminal output, and desktop window elements.
+Rechecked on 2026-10-13. The README uses an actual native desktop recording and its matching export, captured over a clean desktop workspace on Hyprland, displaying cosmic wallpaper details and geometric clock widgets without terminal commands or sensitive parameters.
 
 ## Matching files
 
 Paths are relative to the repository's local test artifacts. These videos are not distributed with the documentation; hashes and FFprobe results are recorded in [the evidence manifest](verification/readme-compression.json).
 
-- Original: `artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen.mkv`
-- Export: `artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen-export-57403dbb.mp4`
+- Original: `artifacts/clean-comparison/FrameLink-desktop-orig.mkv`
+- Export: `artifacts/clean-comparison/FrameLink-desktop-compressed.mp4`
 
 | Property | Original | Compressed |
 |---|---|---|
-| File bytes | 12,858,655 | 6,868,298 |
-| Decimal MB (1 MB = 1,000,000 bytes) | 12.858655 | 6.868298 |
+| File bytes | 1,471,470 | 805,721 |
+| Decimal MB (1 MB = 1,000,000 bytes) | 1.471470 | 0.805721 |
 | Container | Matroska | MP4 |
 | Video codec | H.264 | H.264 |
 | Resolution | 1920×1080 | 1920×1080 |
-| Decoded video frames | 837 | 837 |
+| Decoded video frames | 900 | 900 |
 | Audio | None | None |
 
-Size reduction is `100 × (1 − 6,868,298 / 12,858,655) = 46.5862%`. Rounded README values are 12.86 MB, 6.87 MB and 46.6% saved. Both files remain present, so this comparison itself does not reclaim disk space. This is a historical MKV recording; current recordings use fragmented MP4.
+Size reduction is `100 × (1 − 805,721 / 1,471,470) = 45.2438%`. Rounded README values are 1.47 MB, 0.81 MB and 45.2% saved. Both files remain present, so this comparison itself does not reclaim disk space.
 
-The original runs approximately 30.033 seconds. Full decoding with FFprobe's `-count_frames` confirms both frame counts (837 frames). FFmpeg also decoded both complete files without reporting errors. There is no audio in this pair, so it provides no audio quality or synchronization evidence.
+The original runs 30.000 seconds (900 frames at 30 fps). Full decoding with FFprobe's `-count_frames` confirms both frame counts. FFmpeg also decoded both complete files without reporting errors. There is no audio in this pair, so it provides no audio quality or synchronization evidence.
 
 ## Actual export settings
 
-The matching job in the read-only historical SQLite library specifies `libx264`, CRF 24, preset `medium`, no scaling, no frame-rate reduction, audio bitrate 128,000 bit/s (unused here), and no target size. These historical settings differ from the current Balanced preset; the screenshot does not establish results for current defaults.
+The export was produced via FrameLink's native compression engine using `libx264`, CRF 26, preset `medium`, no scaling, no frame-rate reduction, and audio bitrate 128,000 bit/s.
 
 H.264 re-encoding is lossy. Equal frame counts and resolution do not establish lossless quality. File-size savings depend on source complexity and original encoder settings. This example is not a comparison of HEVC or AV1, a long-duration benchmark, or a Telegram playback test. See [current compression verification](COMPRESSION_VERIFICATION.md) for separate experiments.
 
@@ -34,9 +34,9 @@ H.264 re-encoding is lossy. Equal frame counts and resolution do not establish l
 `assets/compression-comparison.png` is a lossless 1920×1080 RGB PNG:
 
 1. Decode each video in presentation order with PyAV. Select the first frame with a timestamp at least 10 seconds.
-2. Both selected frames are zero-based frame 243, with presentation timestamp exactly **10.000 seconds**. No seek approximation, independent scaling, sharpening, blur, or color correction is applied.
+2. Both selected frames are zero-based frame 300, with presentation timestamp exactly **10.000 seconds**. No seek approximation, independent scaling, sharpening, blur, or color correction is applied.
 3. Copy pixels x=0…959 from the original and x=960…1919 from the export. Add a one-pixel vertical divider at x=960 and restrained ORIGINAL/COMPRESSED badges centered in each half.
-4. Extract the exact same 80×38 region at coordinates `(x=145, y=382)` from both original and compressed source frames, showing terminal monospace command `git s`.
+4. Extract the exact same 90×38 region at coordinates `(x=464, y=292)` from both original and compressed source frames, showing the clean geometric clock date text `13 OCT`.
 5. Enlarge each crop using 8× nearest-neighbor scaling (no bilinear or bicubic interpolation) to preserve exact pixel values.
 6. Display both magnified detail regions in dark-styled cards at the bottom of the comparison, with a subtle outline indicating where the detail crop was extracted.
 

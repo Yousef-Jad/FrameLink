@@ -1,29 +1,29 @@
 {
   "original": {
-    "path": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen.mkv",
-    "bytes": 12858655,
-    "sha256": "48ad7b709a80e8a17edfd23339841b17a3192b40f3947a88e6bed01da35cc69a",
+    "path": "artifacts/clean-comparison/FrameLink-desktop-orig.mkv",
+    "bytes": 1471470,
+    "sha256": "1403013e5282a83694f96e7d28a2c8f6c53539491a5f52f25376e356b322aecd",
     "probe": {
       "streams": [
         {
           "index": 0,
           "codec_name": "h264",
           "codec_long_name": "H.264 / AVC / MPEG-4 AVC / MPEG-4 part 10",
-          "profile": "Constrained Baseline",
+          "profile": "High",
           "codec_type": "video",
           "codec_tag_string": "[0][0][0][0]",
           "codec_tag": "0x0000",
-          "mime_codec_string": "avc1.42c028",
+          "mime_codec_string": "avc1.640028",
           "width": 1920,
           "height": 1080,
           "coded_width": 1920,
           "coded_height": 1088,
-          "has_b_frames": 0,
+          "has_b_frames": 2,
           "pix_fmt": "yuv420p",
           "level": 40,
           "chroma_location": "left",
           "field_order": "progressive",
-          "refs": 1,
+          "refs": 4,
           "is_avc": "true",
           "nal_length_size": "4",
           "r_frame_rate": "30/1",
@@ -32,8 +32,8 @@
           "start_pts": 0,
           "start_time": "0.000000",
           "bits_per_raw_sample": "8",
-          "nb_read_frames": "837",
-          "extradata_size": 39,
+          "nb_read_frames": "900",
+          "extradata_size": 47,
           "disposition": {
             "default": 0,
             "dub": 0,
@@ -56,21 +56,21 @@
             "multilayer": 0
           },
           "tags": {
-            "DURATION": "00:00:30.033000000"
+            "DURATION": "00:00:30.000000000"
           }
         }
       ],
       "format": {
-        "filename": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen.mkv",
+        "filename": "artifacts/clean-comparison/FrameLink-desktop-orig.mkv",
         "nb_streams": 1,
         "nb_programs": 0,
         "nb_stream_groups": 0,
         "format_name": "matroska,webm",
         "format_long_name": "Matroska / WebM",
         "start_time": "0.000000",
-        "duration": "30.033000",
-        "size": "12858655",
-        "bit_rate": "3425206",
+        "duration": "30.000000",
+        "size": "1471470",
+        "bit_rate": "392392",
         "probe_score": 100,
         "tags": {
           "ENCODER": "Lavf62.12.101"
@@ -79,9 +79,9 @@
     }
   },
   "compressed": {
-    "path": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen-export-57403dbb.mp4",
-    "bytes": 6868298,
-    "sha256": "281b3bb1d4bb32d18967a5237c2e87adfd1db99a99969a020b419d7b6ab6fc01",
+    "path": "artifacts/clean-comparison/FrameLink-desktop-compressed.mp4",
+    "bytes": 805721,
+    "sha256": "9a8e031af471f9eda2c6d3f5219f823b115dfbecee90b4eac4ae95368c147e1b",
     "probe": {
       "streams": [
         {
@@ -97,27 +97,27 @@
           "height": 1080,
           "coded_width": 1920,
           "coded_height": 1088,
-          "has_b_frames": 0,
+          "has_b_frames": 2,
           "pix_fmt": "yuv420p",
           "level": 40,
           "chroma_location": "left",
           "field_order": "progressive",
-          "refs": 3,
+          "refs": 4,
           "is_avc": "true",
           "nal_length_size": "4",
           "id": "0x1",
           "r_frame_rate": "30/1",
-          "avg_frame_rate": "25110/901",
-          "time_base": "1/15360",
+          "avg_frame_rate": "2700000/90001",
+          "time_base": "1/90000",
           "start_pts": 0,
           "start_time": "0.000000",
-          "duration_ts": 461312,
-          "duration": "30.033333",
-          "bit_rate": "1828273",
+          "duration_ts": 2700030,
+          "duration": "30.000333",
+          "bit_rate": "210469",
           "bits_per_raw_sample": "8",
-          "nb_frames": "837",
-          "nb_read_frames": "837",
-          "extradata_size": 47,
+          "nb_frames": "900",
+          "nb_read_frames": "900",
+          "extradata_size": 45,
           "disposition": {
             "default": 1,
             "dub": 0,
@@ -146,16 +146,16 @@
         }
       ],
       "format": {
-        "filename": "artifacts/native-handoff-negotiated30/recordings/FrameLink-20261012-122708-579c39-screen-export-57403dbb.mp4",
+        "filename": "artifacts/clean-comparison/FrameLink-desktop-compressed.mp4",
         "nb_streams": 1,
         "nb_programs": 0,
         "nb_stream_groups": 0,
         "format_name": "mov,mp4,m4a,3gp,3g2,mj2",
         "format_long_name": "QuickTime / MOV",
         "start_time": "0.000000",
-        "duration": "30.033333",
-        "size": "6868298",
-        "bit_rate": "1829513",
+        "duration": "30.000333",
+        "size": "805721",
+        "bit_rate": "214856",
         "probe_score": 100,
         "tags": {
           "major_brand": "isom",
@@ -166,10 +166,10 @@
       }
     }
   },
-  "reduction_percent": 46.586186502398576,
+  "reduction_percent": 45.24380381523238,
   "settings": {
     "codec": "libx264",
-    "quality": 24,
+    "quality": 26,
     "preset": "medium",
     "width": 0,
     "fps": 0,
@@ -177,18 +177,18 @@
     "target_mb": 0
   },
   "frame": {
-    "zero_based_index": 243,
+    "zero_based_index": 300,
     "original_timestamp": 10.0,
     "compressed_timestamp": 10.0
   },
   "magnifier": {
-    "crop_x": 145,
-    "crop_y": 382,
-    "crop_w": 80,
+    "crop_x": 464,
+    "crop_y": 292,
+    "crop_w": 90,
     "crop_h": 38,
     "scale": 8,
     "filter": "nearest",
-    "source_content": "Terminal monospace syntax-highlighted command 'git s'"
+    "source_content": "Desktop geometric clock widget date text '13 OCT'"
   },
   "comparison": {
     "size": [

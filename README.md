@@ -22,7 +22,7 @@ FrameLink records your screen, a phone camera, or both. The desktop receives cam
 
 ![Original recording on the left; compressed recording on the right](docs/assets/compression-comparison.png)
 
-**12.86 MB → 6.87 MB | 46.6% space saved | H.264**
+**1.47 MB → 0.81 MB | 45.2% space saved | H.264**
 
 Real 30-second 1920×1080 desktop recording compared at the exact same frame (10.000s). The 8× nearest-neighbor crops highlight fine-detail retention and subtle DCT compression characteristics. Lossy results vary by scene complexity and settings. [Files, settings and methodology](docs/COMPRESSION_EVIDENCE.md).
 
