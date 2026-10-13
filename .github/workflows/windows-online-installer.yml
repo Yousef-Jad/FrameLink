@@ -1,0 +1,52 @@
+name: Verify Windows online installer
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  installer:
+    runs-on: windows-2022
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Build installer from project source only
+        shell: powershell
+        run: ./packaging/windows/build-online-installer.ps1
+      - name: Test first installation with isolated downloaded Python
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $installer = Join-Path $PWD 'artifacts/windows-online-installer/FrameLink-Windows-x64-Setup.exe'
+          $root = Join-Path $env:RUNNER_TEMP 'FrameLinkInstallerTest'
+          $p = Start-Process -FilePath $installer -ArgumentList @('--install-only', ('"' + $root + '"')) -PassThru -Wait
+          if ($p.ExitCode -ne 0) {
+            Get-Content (Join-Path $root 'setup.log')
+            throw "Installer failed with code $($p.ExitCode)"
+          }
+          $python = Join-Path $root 'Runtime312/python.exe'
+          & $python -c "import framelink, av, PySide6, windows_capture; print('Installed runtime imports passed')"
+          if ($LASTEXITCODE -ne 0) { throw 'Installed package imports failed.' }
+          $env:QT_QPA_PLATFORM = 'offscreen'
+          & $python -m framelink.app --smoke-test --data-dir (Join-Path $env:RUNNER_TEMP 'FrameLinkInstalledSmoke') --screenshot artifacts/windows-online-installer/installed-ui.png
+          if ($LASTEXITCODE -ne 0) { throw 'Installed application smoke failed.' }
+          # A completed installation must run again without downloading dependencies.
+          $p = Start-Process -FilePath $installer -ArgumentList @('--install-only', ('"' + $root + '"')) -PassThru -Wait
+          if ($p.ExitCode -ne 0) { throw 'Repeated installer invocation failed.' }
+          Copy-Item (Join-Path $root 'setup.log') artifacts/windows-online-installer/setup-test.log
+          $marker = Get-Content (Join-Path $root 'installed-revision.txt') -Raw
+          if ($marker.Trim() -ne '325f0bf4e20a5d1ac12b15842d0ff1e4d82c535d') { throw 'Installed source revision mismatch.' }
+          Write-Output 'Fresh installation, repeated invocation, imports and real media smoke passed.'
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: FrameLink-Windows-online-installer
+          path: |
+            artifacts/windows-online-installer/FrameLink-Windows-x64-Setup.exe
+            artifacts/windows-online-installer/*.sha256
+            artifacts/windows-online-installer/FrameLink-Windows-x64-Setup-source.zip
+            artifacts/windows-online-installer/provenance.json
+            artifacts/windows-online-installer/*.log
+            artifacts/windows-online-installer/*.png
+          if-no-files-found: error
