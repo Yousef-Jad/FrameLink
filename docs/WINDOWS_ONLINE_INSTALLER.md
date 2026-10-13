@@ -17,3 +17,7 @@ Application runtime and setup log: `%LOCALAPPDATA%\FrameLinkDesktop`. Remove tha
 ## Verification scope
 
 The dedicated Windows Server 2022 workflow compiles the C# EXE, performs a fresh install using its downloaded runtime, checks imports, runs the installed actual Qt/media smoke test, and retries the completed installation. An unchanged installed marker causes subsequent launches to use local files without downloading again. Windows 10/11 physical hardware, SmartScreen behavior, Safari reliability and hotspot/audio synchronization remain unverified. This experimental installer does not certify those release gates.
+
+## Observed Windows CI result
+
+[Run 38453379869](https://github.com/Yousef-Jad/FrameLink/actions/runs/38453379869) passed for installer commit `4001d08`: fresh isolated install, repeated invocation, Qt/PyAV/Windows capture imports, actual installed UI creation, and decoded H.264 media (320×180, 30 frames, 1.000 second). Published EXE SHA-256: `d37640f698548eac77d57155ea9ae0341858a74969977a73e041ab6e80fcc02a`.

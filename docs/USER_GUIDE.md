@@ -38,7 +38,7 @@ Qt documents its Wayland screen capture as experimental. The target display is s
 
 ## Installation
 
-The v0.1.0 and v0.1.1 releases and their download assets were withdrawn at the user’s request. No public binaries are currently available. Use the source instructions below; new publication remains blocked until the [release gates](release-verification.json), including physical-device and dependency licensing checks, pass. The portable package instructions describe local candidates, not available downloads.
+The v0.1.0 and v0.1.1 releases and their download assets were withdrawn at the user’s request. A [Windows online setup EXE](WINDOWS_ONLINE_INSTALLER.md) is now available; it installs runtime dependencies directly on the user’s computer and does not bundle them. Public bundled Windows/Linux portable packages remain unavailable. Use the source instructions below; new publication remains blocked until the [release gates](release-verification.json), including physical-device and dependency licensing checks, pass. The portable package instructions describe local candidates, not available downloads.
 
 ### Windows
 

@@ -30,9 +30,9 @@ For future recordings, **Keep Original** defaults to off: the original is remove
 
 ## Installation
 
-Public Windows/Linux downloads have been withdrawn. Use Python 3.12+ and the [source installation instructions](docs/USER_GUIDE.md#build-from-source) for Windows 10/11 x64 or Linux x86_64. Wayland requires PipeWire and a working ScreenCast portal.
+**Windows 10/11 x64:** download [FrameLink-Windows-x64-Setup.exe](https://github.com/Yousef-Jad/FrameLink/releases/download/v0.1.2/FrameLink-Windows-x64-Setup.exe) and choose **Install and launch**. This experimental online installer needs .NET Framework 4.8 and internet for the first installation; it downloads its runtime and dependencies, then creates a desktop shortcut. Recording afterward stays local. [Setup and verification](docs/WINDOWS_ONLINE_INSTALLER.md).
 
-New binaries will appear on [Releases](https://github.com/Yousef-Jad/FrameLink/releases) only after device verification and distribution licensing checks pass.
+**Linux x86_64:** public portable bundles remain withdrawn. Use Python 3.12+ and the [source installation instructions](docs/USER_GUIDE.md#build-from-source). Wayland requires PipeWire and a working ScreenCast portal. Bundled-package publication remains gated on device verification and distribution licensing.
 
 ## Quick Start
 

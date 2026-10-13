@@ -30,9 +30,9 @@ FrameLink 可以录制屏幕、手机摄像头，或同时录制两者。电脑�
 
 ## 安装
 
-旧版 Windows 和 Linux 下载文件已撤下。请使用 Python 3.12 或更高版本，并按[源码安装说明](../USER_GUIDE.md#build-from-source)在 Windows 10/11 x64 或 Linux x86_64 上运行。Wayland 需要 PipeWire 和可用的 ScreenCast 门户。
+**Windows 10/11 x64：** 下载 [FrameLink-Windows-x64-Setup.exe](https://github.com/Yousef-Jad/FrameLink/releases/download/v0.1.2/FrameLink-Windows-x64-Setup.exe)，点击 **Install and launch**。此实验性在线安装程序需要 .NET Framework 4.8，首次安装需联网下载运行环境和依赖项，然后会创建桌面快捷方式。安装完成后，录制仍在本地进行。[设置与验证](../WINDOWS_ONLINE_INSTALLER.md)。
 
-新安装包将在设备验证和分发许可证检查通过后发布到 [Releases](https://github.com/Yousef-Jad/FrameLink/releases)。
+**Linux x86_64：** 预编译便携包仍已撤下。请使用 Python 3.12 或更高版本，按[源码安装说明](../USER_GUIDE.md#build-from-source)运行。Wayland 需要 PipeWire 和可用的 ScreenCast 门户。捆绑依赖项的软件包仍需通过设备验证和分发许可证检查后才能发布。
 
 ## 三步上手
 

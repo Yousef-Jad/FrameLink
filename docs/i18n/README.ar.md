@@ -36,9 +36,9 @@
 
 ## التثبيت
 
-سُحبت تنزيلات Windows وLinux القديمة. استخدم Python 3.12 أو أحدث واتبع [تعليمات التثبيت من المصدر](../USER_GUIDE.md#build-from-source) على Windows 10/11 x64 أو Linux x86_64. يتطلب Wayland خدمة PipeWire وبوابة مشاركة شاشة تعمل بصورة صحيحة.
+**Windows 10/11 x64:** نزّل [FrameLink-Windows-x64-Setup.exe](https://github.com/Yousef-Jad/FrameLink/releases/download/v0.1.2/FrameLink-Windows-x64-Setup.exe) واضغط **Install and launch**. المثبّت تجريبي، ويتطلب .NET Framework 4.8 والإنترنت عند التثبيت الأول لتنزيل بيئة التشغيل والمكتبات، ثم ينشئ اختصاراً على سطح المكتب. التسجيل بعد التثبيت يبقى محلياً. [الإعداد والتحقق](../WINDOWS_ONLINE_INSTALLER.md).
 
-ستتوفر ملفات جديدة في [Releases](https://github.com/Yousef-Jad/FrameLink/releases) بعد اكتمال اختبارات الأجهزة ومراجعة تراخيص التوزيع.
+**Linux x86_64:** ما زالت الحزم المحمولة مسحوبة. استخدم Python 3.12 أو أحدث واتبع [تعليمات التثبيت من المصدر](../USER_GUIDE.md#build-from-source). يتطلب Wayland خدمة PipeWire وبوابة مشاركة شاشة مناسبة. نشر الحزم التي تضم المكتبات ما زال مشروطاً باختبارات الأجهزة ومراجعة تراخيص التوزيع.
 
 ## البدء في ثلاث خطوات
 
